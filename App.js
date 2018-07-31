@@ -1,24 +1,21 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { createBottomTabNavigator,createStackNavigator } from 'react-navigation';
+import { createSwitchNavigator, createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost'
 import { ApolloProvider } from 'react-apollo'
 import { setContext } from 'apollo-link-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import FeedScreen from './FeedScreen';
 import AddEventScreen from './AddEventScreen';
 import MyProfileScreen from './MyProfileScreen';
-import LoginScreen from './Entry/LoginScreen';
-import RegisterScreen from './Entry/RegisterScreen';
+import LoginScreen from './Auth/LoginScreen';
+import RegisterScreen from './Auth/RegisterScreen';
+import AuthLoadingScreen from './Auth/AuthLoadingScreen';
 
 global.token = ""
-
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
-
 const authLink = setContext((_, { headers }) => {
-  // get the authentication token from local storage if it exists
-  // const token = localStorage.getItem('token');
-  // return the headers to the context so httpLink can read them
   if (global.token !== "") {
     return {
       headers: {
@@ -32,12 +29,6 @@ const client = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache()
 })
-
-class MainScreen extends React.Component {
-  render() {
-    return <TabNavigator />;
-  }
-}
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -68,20 +59,25 @@ const TabNavigator = createBottomTabNavigator(
   }
 );
 
-const StackNavigator = createStackNavigator(
+const AppStack = createStackNavigator({ Main: TabNavigator });
+const AuthStack = createStackNavigator({ Login: LoginScreen, Register: RegisterScreen });
+
+const SwitchNavigator = createSwitchNavigator(
   {
-    Login: LoginScreen,
-    Register: RegisterScreen,
-    Main: MainScreen,
+    AuthLoading: AuthLoadingScreen,
+    App: AppStack,
+    Auth: AuthStack
   },
-  { initialRouteName: 'Login' }
+  {
+    initialRouteName: 'AuthLoading',
+  }
 );
 
 export default class App extends React.Component {
   render() {
     return (
       <ApolloProvider client={client}>
-        <StackNavigator />
+        <SwitchNavigator />
       </ApolloProvider>
     )
   }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
+import { View, TouchableOpacity, Text, StyleSheet, AsyncStorage } from 'react-native'
 import { TextInput } from 'react-native-paper';
 
 const signInUserMutation = gql`
@@ -40,8 +40,8 @@ class LoginScreen extends React.Component {
        variables: {email, password}
       })
 
-      global.token = result.data.signInUser.token
-      
+      await AsyncStorage.setItem('userToken', result.data.signInUser.token);
+
       this.props.navigation.navigate('Main', {
         user: result.data.signInUser.user
       })
@@ -101,8 +101,6 @@ class LoginScreen extends React.Component {
   }
 }
 
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -120,8 +118,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: 'bold'
   }
-
-  
 })
 
 export default graphql(signInUserMutation, {name: 'signInUserMutation'})(LoginScreen)
