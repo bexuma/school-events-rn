@@ -9,16 +9,16 @@ const allEventsQuery = gql`
       id
       title
       description
-      site_url
-      starts_at
-      ends_at
-      prices {
-        label
-        amount
-      }
     }
   }
 `
+// site_url
+// starts_at
+// ends_at
+// prices {
+//   label
+//   amount
+// }
 
 class FeedScreen extends Component {
   static navigationOptions = {

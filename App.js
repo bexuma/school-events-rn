@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, AsyncStorage } from 'react-native';
 import { createSwitchNavigator, createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost'
 import { ApolloProvider } from 'react-apollo'
@@ -16,14 +16,29 @@ import EventScreen from './EventScreen';
 
 global.token = ""
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
-const authLink = setContext((_, { headers }) => {
-  if (global.token !== "") {
-    return {
-      headers: {
-        authorization: "Bearer " + global.token
+const authLink = setContext(async (_, { headers }) => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    if (token !== null) {
+      // We have data!!
+      console.log(token);
+      return {
+        headers: {
+          authorization: "Bearer " + token
+        }
       }
+    } else {
+      console.log("NO TOKEN")
     }
-  }
+   } catch (token) {
+     // Error retrieving data
+   }
+
+    // return {
+    //   headers: {
+    //     authorization: token ? `Bearer ${token}` : ''
+    //   }
+    // }
 });
 
 const client = new ApolloClient({
