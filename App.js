@@ -14,7 +14,6 @@ import RegisterScreen from './Auth/RegisterScreen';
 import AuthLoadingScreen from './Auth/AuthLoadingScreen';
 import EventScreen from './EventScreen';
 
-global.token = ""
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
   try {

@@ -14,8 +14,8 @@ import { ImagePicker } from 'expo';
 // `
 
 const createEventMutation = gql`
-  mutation ($title: String!, $description: String!){
-    createEvent(title: $title, description: $description) {
+  mutation ($title: String!, $description: String!, $site_url: String!, $prices: [PriceInput]){
+    createEvent(title: $title, description: $description, site_url: $site_url, prices: $prices) {
       id
     }
   }
@@ -36,21 +36,41 @@ class AddEventScreen extends React.Component {
   state = {
     title: '',
     description: '',
-    // site_url: '',
+    site_url: '',
     // starts_at: '',
     // ends_at: '',
-    // prices: [],
-    // label: '',
-    // amount: ''
+    prices: [],
+    label: '',
+    amount: ''
   }
 
-  // handleAddPriceForm = () => {
-  //   this.setState({
-  //     prices: [...this.state.prices, this.state.instruction],
-  //     label: '',
-  //     amount: ''
-  //   })
-  // }
+  handleAddPriceForm = () => {
+    const price = {
+      label: this.state.label,
+      amount: parseInt(this.state.amount , 10 )
+    }
+
+    this.setState({
+      prices: [...this.state.prices, price],
+      label: '',
+      amount: ''
+    })
+  }
+
+  _createEvent = async () => {
+    try {
+      const {title, description, site_url, prices} = this.state
+      await this.props.createEventMutation({
+       variables: {title, description, site_url, prices}
+      })
+
+      console.log("CREATED")
+
+    } catch (err) {
+      console.log('err', err)
+    }
+    
+  }
 
   render () {
     // const { navigation } = this.props;
@@ -84,6 +104,45 @@ class AddEventScreen extends React.Component {
           value={this.state.description}
         />
 
+        <TextInput
+          label='Site URL'
+          underlineColor="#159688"
+          placeholder='Event site'
+          onChangeText={site_url => this.setState({ site_url })}
+          value={this.state.site_url}
+        />
+
+        <Text style={[styles.header, {paddingTop: 2}]}>Prices</Text>
+
+        <FlatList
+          data={this.state.prices}
+          renderItem={({item}) => <View style={styles.item}><Text style={styles.itemText}>{item.label}</Text><Text>{item.amount}</Text></View>}
+        />
+
+        <TextInput
+          label='Label'
+          underlineColor="#159688"
+          onChangeText={label => this.setState({ label })}
+          value={this.state.label}
+        />
+
+        <TextInput
+          label='Amount'
+          underlineColor="#159688"
+          onChangeText={amount => this.setState({ amount })}
+          value={this.state.amount}
+        />
+
+        <TouchableOpacity
+          onPress={this.handleAddPriceForm}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>
+            Add Price
+          </Text>
+
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.submitButton}
           onPress={() => {
@@ -101,22 +160,6 @@ class AddEventScreen extends React.Component {
     )
   }
 
-  _createEvent = async () => {
-    try {
-      // alert(JSON.stringify(resJson));
-      // console.log('resJson: ', resJson)
-      const {title, description} = this.state
-      await this.props.createEventMutation({
-       variables: {title, description}
-      })
-
-      console.log("CREATED")
-
-    } catch (err) {
-      console.log('err', err)
-    }
-    
-  }
 }
 
 
