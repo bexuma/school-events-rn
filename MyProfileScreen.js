@@ -9,9 +9,14 @@ export default class MyProfileScreen extends Component {
   };
 
   render() {
+    const { navigation } = this.props;
+    const user = navigation.getParam('user', 'NO-USER');
+
     return (
       <View>
-        <Text style={{ color: 'red', fontSize: 50 }}>my profile!</Text>
+        <Text style={{ color: 'red', fontSize: 50 }}>
+          my profile! {user.email}
+        </Text>
         <Button
           title="logout"
           onPress={

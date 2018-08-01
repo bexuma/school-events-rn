@@ -12,6 +12,7 @@ import MyProfileScreen from './MyProfileScreen';
 import LoginScreen from './Auth/LoginScreen';
 import RegisterScreen from './Auth/RegisterScreen';
 import AuthLoadingScreen from './Auth/AuthLoadingScreen';
+import EventScreen from './EventScreen';
 
 global.token = ""
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
@@ -59,7 +60,7 @@ const TabNavigator = createBottomTabNavigator(
   }
 );
 
-const AppStack = createStackNavigator({ Main: TabNavigator });
+const AppStack = createStackNavigator({ Main: TabNavigator, Event: EventScreen });
 const AuthStack = createStackNavigator({ Login: LoginScreen, Register: RegisterScreen });
 
 const SwitchNavigator = createSwitchNavigator(
