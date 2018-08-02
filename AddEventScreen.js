@@ -115,10 +115,10 @@ class AddEventScreen extends React.Component {
   _createEvent = async (imageUri) => {
     const AWS = require('aws-sdk');
     const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
-    
-    // console.log(imageUri)
 
-    const params = {Bucket: 'senbi', Key: 'images/chin.jpg', ContentType: 'image/jpeg'};
+    const timestamp = '' + Date.now()
+
+    const params = {Bucket: 'senbi', Key: `images/toleuov/${timestamp}.jpg`, ContentType: 'image/jpeg'};
     s3.getSignedUrl('putObject', params, function (err, url) {
       console.log('Your generated pre-signed URL is', url);
 
@@ -142,7 +142,7 @@ class AddEventScreen extends React.Component {
 
       request.open('PUT', url)
       request.setRequestHeader('Content-Type', 'image/jpeg')
-      request.send({ uri: imageUri, type: 'image/jpeg', name: 'chin.jpg' })
+      request.send({ uri: imageUri, type: 'image/jpeg', name: `${timestamp}.jpg` })
     });
 
 
