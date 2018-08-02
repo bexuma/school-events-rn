@@ -4,6 +4,8 @@ import { gql } from 'apollo-boost'
 import { View, ScrollView, TouchableOpacity, FlatList, Image, Text, StyleSheet, KeyboardAvoidingView, TimePickerAndroid, DatePickerAndroid } from 'react-native'
 import { TextInput } from 'react-native-paper';
 import { ImagePicker } from 'expo';
+import Moment from 'moment';
+require('moment/locale/ru.js');
 
 // const createEventMutation = gql`
 //   mutation ($title: String!, $description: String!, $site_url: [String!]!, $starts_at: [String!]!, $ends_at: String!, $prices: [Price!]!){
@@ -13,9 +15,11 @@ import { ImagePicker } from 'expo';
 //   }
 // `
 
+// Moment.locale('ru');
+
 const createEventMutation = gql`
-  mutation ($title: String!, $description: String!, $site_url: String!, $starts_at: DateTime!, $ends_at: DateTime!, $prices: [PriceInput]){
-    createEvent(title: $title, description: $description, site_url: $site_url, starts_at: $starts_at, ends_at: $ends_at, prices: $prices) {
+  mutation ($title: String!, $description: String!, $image_name: String!, $site_url: String!, $starts_at: DateTime!, $ends_at: DateTime!, $prices: [PriceInput]){
+    createEvent(title: $title, description: $description, image_name: $image_name, site_url: $site_url, starts_at: $starts_at, ends_at: $ends_at, prices: $prices) {
       id
     }
   }
@@ -58,6 +62,17 @@ class AddEventScreen extends React.Component {
     })
   }
 
+  getFormattedDateTime = (year, month, day, hour, minute) => {
+    let tMonth, tDay, tHour, tMinute
+
+    tMonth = (month <= 8) ? `0${month+1}` : `${month+1}`
+    tDay = (day <= 9) ? `0${day}` : `${day}`
+    tHour = (hour <= 9) ? `0${hour}` : `${hour}`
+    tMinute = (minute <= 9) ? `0${minute}` : `${minute}`
+
+    return `${year}-${tMonth}-${tDay}T${tHour}:${tMinute}:00Z`
+  }
+
   handleSelectStartsAtForm = async () => {
     const currentDate = new Date()
     
@@ -75,33 +90,36 @@ class AddEventScreen extends React.Component {
 
     if ((actionDatePicker !== DatePickerAndroid.dismissedAction) && (actionTimePicker !== TimePickerAndroid.dismissedAction)) {
       this.setState({
-        starts_at: `${year}-${month+1}-${day}T${hour}:${minute}:00Z`
+        starts_at: this.getFormattedDateTime(year, month, day, hour, minute)
       })
     }
   }
 
   handleSelectEndsAtForm = async () => {
-    const currentDate = new Date()
+    const starts_at = Moment(this.state.starts_at).toDate()
 
     const {actionDatePicker, year, month, day} = await DatePickerAndroid.open({
-      minDate: currentDate,
-      date: currentDate,
+      minDate: starts_at,
+      date: starts_at,
     });
 
     const {actionTimePicker, hour, minute} = await TimePickerAndroid.open({
-      hour: 14,
-      minute: 0,
+      hour: parseInt(Moment(this.state.starts_at).format("HH")), // GMT+0600 (East Kazakhstan Time)
+      minute: parseFloat(Moment(this.state.starts_at).format("mm")),
       is24Hour: true,
     });
 
     if ((actionDatePicker !== DatePickerAndroid.dismissedAction) && (actionTimePicker !== TimePickerAndroid.dismissedAction)) {
       this.setState({
-        ends_at: `${year}-${month+1}-${day}T${hour}:${minute}:00Z`
+        ends_at: this.getFormattedDateTime(year, month, day, hour, minute)
       })
     }
   }
 
   pickImage = async () => {
+    console.log(this.state.starts_at)
+    console.log(this.state.ends_at)
+
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
@@ -120,7 +138,7 @@ class AddEventScreen extends React.Component {
 
     const params = {Bucket: 'senbi', Key: `images/toleuov/${timestamp}.jpg`, ContentType: 'image/jpeg'};
     s3.getSignedUrl('putObject', params, function (err, url) {
-      console.log('Your generated pre-signed URL is', url);
+      // console.log('Your generated pre-signed URL is', url);
 
       const request = new XMLHttpRequest();
       //request.open('PUT', url);
@@ -130,7 +148,8 @@ class AddEventScreen extends React.Component {
         }
 
         if (request.status === 200) {
-          console.log('success', request.responseText);
+          // console.log('success', request.responseText);
+          console.log('Image successfully uploaded to S3');
         } else {
           console.warn('Error while sending the image to S3');
         }
@@ -146,17 +165,17 @@ class AddEventScreen extends React.Component {
     });
 
 
-    // try {
-    //   const {title, description, site_url, starts_at, ends_at, prices} = this.state
-    //   await this.props.createEventMutation({
-    //    variables: {title, description, site_url, starts_at, ends_at, prices}
-    //   })
+    try {
+      const {title, description, site_url, starts_at, ends_at, prices} = this.state
+      await this.props.createEventMutation({
+       variables: {title, description, image_name: `${timestamp}`, site_url, starts_at, ends_at, prices}
+      })
 
-    //   console.log("CREATED")
+      console.log("CREATED")
    
-    // } catch (err) {
-    //   console.log('err', err)
-    // }
+    } catch (err) {
+      console.log('err', err)
+    }
     
   }
 

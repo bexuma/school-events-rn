@@ -7,14 +7,6 @@ import {
   View,
 } from 'react-native';
 
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
-
-var params = {Bucket: 'senbi', Key: 'images/toleuov/930924329084932409.jpg'};
-s3.getSignedUrl('getObject', params, function (err, url) {
-    console.log('Your  pre-signed URL is', url);
-});
-
 export default class AuthLoadingScreen extends React.Component {
   constructor(props) {
     super(props);

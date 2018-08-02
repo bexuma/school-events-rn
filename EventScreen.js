@@ -1,9 +1,27 @@
 import React, { Component } from 'react';
-import { Text, View, Button, AsyncStorage, StyleSheet, ScrollView, FlatList } from 'react-native';
+import { Text, View, Button, Image, AsyncStorage, StyleSheet, ScrollView, FlatList } from 'react-native';
 import Moment from 'moment';
 require('moment/locale/ru.js');
 
 export default class EventScreen extends Component {
+
+  state = {
+    imageUrl: '' 
+  }
+
+  componentDidMount() {
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+
+    var params = {Bucket: 'senbi', Key: 'images/toleuov/1533208689907.jpg'};
+    s3.getSignedUrl('getObject', params, (err, url) => {
+        // console.log('Your  pre-signed URL is', url);
+        this.setState({
+          imageUrl: url
+        })
+
+    });
+  }
 
   render() {
     const { navigation } = this.props;
@@ -12,6 +30,11 @@ export default class EventScreen extends Component {
 
     return (
       <ScrollView style={styles.container}>
+        <Image
+          style={{height: 200, marginBottom: 10}}
+          source={{uri: this.state.imageUrl}}
+        />
+
         <Text style={styles.title}>
           {event.title}
         </Text>

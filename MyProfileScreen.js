@@ -12,6 +12,8 @@ export default class MyProfileScreen extends Component {
     const { navigation } = this.props;
     const user = navigation.getParam('user', 'NO-USER');
 
+    console.log(user)
+
     return (
       <View>
         <Text style={{ color: 'red', fontSize: 50 }}>

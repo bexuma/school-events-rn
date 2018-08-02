@@ -27,7 +27,7 @@ const authLink = setContext(async (_, { headers }) => {
         }
       }
     } else {
-      console.log("NO TOKEN")
+      console.log("No authorization header..")
     }
    } catch (token) {
      // Error retrieving data
