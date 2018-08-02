@@ -1,7 +1,7 @@
 import React from 'react'
 import { graphql } from 'react-apollo'
 import { gql } from 'apollo-boost'
-import { View, ScrollView, TouchableOpacity, FlatList, Image, Text, StyleSheet, KeyboardAvoidingView } from 'react-native'
+import { View, ScrollView, TouchableOpacity, FlatList, Image, Text, StyleSheet, KeyboardAvoidingView, TimePickerAndroid, DatePickerAndroid } from 'react-native'
 import { TextInput } from 'react-native-paper';
 import { ImagePicker } from 'expo';
 
@@ -14,8 +14,8 @@ import { ImagePicker } from 'expo';
 // `
 
 const createEventMutation = gql`
-  mutation ($title: String!, $description: String!, $site_url: String!, $prices: [PriceInput]){
-    createEvent(title: $title, description: $description, site_url: $site_url, prices: $prices) {
+  mutation ($title: String!, $description: String!, $site_url: String!, $starts_at: DateTime!, $ends_at: DateTime!, $prices: [PriceInput]){
+    createEvent(title: $title, description: $description, site_url: $site_url, starts_at: $starts_at, ends_at: $ends_at, prices: $prices) {
       id
     }
   }
@@ -37,11 +37,12 @@ class AddEventScreen extends React.Component {
     title: '',
     description: '',
     site_url: '',
-    // starts_at: '',
-    // ends_at: '',
+    starts_at: '',
+    ends_at: '',
     prices: [],
     label: '',
-    amount: ''
+    amount: '',
+    day: ''
   }
 
   handleAddPriceForm = () => {
@@ -57,15 +58,58 @@ class AddEventScreen extends React.Component {
     })
   }
 
+  handleSelectStartsAtForm = async () => {
+    const currentDate = new Date()
+    
+    const {actionDatePicker, year, month, day} = await DatePickerAndroid.open({
+      minDate: currentDate,
+      date: currentDate,
+      
+    });
+
+    const {actionTimePicker, hour, minute} = await TimePickerAndroid.open({
+      hour: 14,
+      minute: 0,
+      is24Hour: true,
+    });
+
+    if ((actionDatePicker !== DatePickerAndroid.dismissedAction) && (actionTimePicker !== TimePickerAndroid.dismissedAction)) {
+      this.setState({
+        starts_at: `${year}-${month+1}-${day}T${hour}:${minute}:00Z`
+      })
+    }
+  }
+
+  handleSelectEndsAtForm = async () => {
+    const currentDate = new Date()
+
+    const {actionDatePicker, year, month, day} = await DatePickerAndroid.open({
+      minDate: currentDate,
+      date: currentDate,
+    });
+
+    const {actionTimePicker, hour, minute} = await TimePickerAndroid.open({
+      hour: 14,
+      minute: 0,
+      is24Hour: true,
+    });
+
+    if ((actionDatePicker !== DatePickerAndroid.dismissedAction) && (actionTimePicker !== TimePickerAndroid.dismissedAction)) {
+      this.setState({
+        ends_at: `${year}-${month+1}-${day}T${hour}:${minute}:00Z`
+      })
+    }
+  }
+
   _createEvent = async () => {
     try {
-      const {title, description, site_url, prices} = this.state
+      const {title, description, site_url, starts_at, ends_at, prices} = this.state
       await this.props.createEventMutation({
-       variables: {title, description, site_url, prices}
+       variables: {title, description, site_url, starts_at, ends_at, prices}
       })
 
       console.log("CREATED")
-
+   
     } catch (err) {
       console.log('err', err)
     }
@@ -142,6 +186,27 @@ class AddEventScreen extends React.Component {
           </Text>
 
         </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={this.handleSelectStartsAtForm}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>
+            Start Date
+          </Text>
+
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={this.handleSelectEndsAtForm}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>
+            End Date
+          </Text>
+
+        </TouchableOpacity>
+
 
         <TouchableOpacity
           style={styles.submitButton}
