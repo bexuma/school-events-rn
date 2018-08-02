@@ -42,7 +42,7 @@ class AddEventScreen extends React.Component {
     prices: [],
     label: '',
     amount: '',
-    day: ''
+    image: ''
   }
 
   handleAddPriceForm = () => {
@@ -101,18 +101,62 @@ class AddEventScreen extends React.Component {
     }
   }
 
-  _createEvent = async () => {
-    try {
-      const {title, description, site_url, starts_at, ends_at, prices} = this.state
-      await this.props.createEventMutation({
-       variables: {title, description, site_url, starts_at, ends_at, prices}
-      })
+  pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
 
-      console.log("CREATED")
-   
-    } catch (err) {
-      console.log('err', err)
+    if (!result.cancelled) {
+      this.setState({ image: result });
     }
+  };
+
+  _createEvent = async (imageUri) => {
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+    
+    // console.log(imageUri)
+
+    const params = {Bucket: 'senbi', Key: 'images/chin.jpg', ContentType: 'image/jpeg'};
+    s3.getSignedUrl('putObject', params, function (err, url) {
+      console.log('Your generated pre-signed URL is', url);
+
+      const request = new XMLHttpRequest();
+      //request.open('PUT', url);
+      request.onreadystatechange = (e) => {  
+        if (request.readyState !== 4) {
+          return;
+        }
+
+        if (request.status === 200) {
+          console.log('success', request.responseText);
+        } else {
+          console.warn('Error while sending the image to S3');
+        }
+
+        if (e) {
+          console.log(e)
+        }
+      };
+
+      request.open('PUT', url)
+      request.setRequestHeader('Content-Type', 'image/jpeg')
+      request.send({ uri: imageUri, type: 'image/jpeg', name: 'chin.jpg' })
+    });
+
+
+    // try {
+    //   const {title, description, site_url, starts_at, ends_at, prices} = this.state
+    //   await this.props.createEventMutation({
+    //    variables: {title, description, site_url, starts_at, ends_at, prices}
+    //   })
+
+    //   console.log("CREATED")
+   
+    // } catch (err) {
+    //   console.log('err', err)
+    // }
     
   }
 
@@ -120,7 +164,7 @@ class AddEventScreen extends React.Component {
     // const { navigation } = this.props;
     // const allRecipesQuery = navigation.getParam('allRecipesQuery', '');
     // const authorId = navigation.getParam('authorId', '')
-    // let { image } = this.state;
+    let { image } = this.state;
 
     return (
       <KeyboardAvoidingView
@@ -207,11 +251,23 @@ class AddEventScreen extends React.Component {
 
         </TouchableOpacity>
 
+        {image
+            ? (<Image source={{ uri: image.uri }} style={{ height: 200, marginTop: 10 }} />)
+            : null }
+        
+        <TouchableOpacity
+          style={[styles.button, styles.addImagebutton]}
+          onPress={this.pickImage}
+        >
+          <Text style={styles.buttonText}>
+            Choose an image
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.submitButton}
           onPress={() => {
-            this._createEvent();
+            this._createEvent(image.uri);
             this.props.navigation.goBack()
           }}
         >

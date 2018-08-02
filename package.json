@@ -21,6 +21,7 @@
   "dependencies": {
     "apollo-boost": "^0.1.12",
     "apollo-link-context": "^1.0.8",
+    "aws-sdk": "^2.285.1",
     "expo": "^27.0.1",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
