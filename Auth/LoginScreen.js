@@ -10,7 +10,9 @@ const signInUserMutation = gql`
       token
       user {
         id
+        name
         email
+        username
       }
     }
   }
@@ -41,11 +43,10 @@ class LoginScreen extends React.Component {
        variables: {email, password}
       })
 
-      await AsyncStorage.setItem('userToken', result.data.signInUser.token);
+      await AsyncStorage.setItem('token', result.data.signInUser.token);
+      await AsyncStorage.setItem('user', JSON.stringify(result.data.signInUser.user));
 
-      this.props.navigation.navigate('Main', {
-        user: result.data.signInUser.user
-      })
+      this.props.navigation.navigate('Main')
     }
     catch(e) {
       alert("Email or password does not match")

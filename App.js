@@ -17,7 +17,7 @@ import EventScreen from './EventScreen';
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
   try {
-    const token = await AsyncStorage.getItem('userToken');
+    const token = await AsyncStorage.getItem('token');
     if (token !== null) {
       // We have data!!
       console.log(token);

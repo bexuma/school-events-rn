@@ -8,16 +8,30 @@ export default class MyProfileScreen extends Component {
 
   };
 
-  render() {
-    const { navigation } = this.props;
-    const user = navigation.getParam('user', 'NO-USER');
+  state = {
+    name: '',
+    isLoading: true
+  }
 
-    console.log(user)
+  componentDidMount() {
+    AsyncStorage.getItem('user').then((user) => {
+      console.log(user)
+      this.setState({
+        isLoading: false,
+        name: JSON.parse(user).username
+      });
+    });
+  }
+
+  render() {
+    if (this.state.isLoading) {
+      return <Text>SDFdfds</Text>
+    }
 
     return (
       <View>
         <Text style={{ color: 'red', fontSize: 50 }}>
-          my profile! {user.email}
+          my profile! {this.state.name}
         </Text>
         <Button
           title="logout"

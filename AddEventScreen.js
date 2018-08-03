@@ -6,20 +6,27 @@ import { TextInput } from 'react-native-paper';
 import { ImagePicker } from 'expo';
 import Moment from 'moment';
 require('moment/locale/ru.js');
-
-// const createEventMutation = gql`
-//   mutation ($title: String!, $description: String!, $site_url: [String!]!, $starts_at: [String!]!, $ends_at: String!, $prices: [Price!]!){
-//     createEvent(title: $title, description: $description, site_url: $site_url, starts_at: $starts_at, ends_at: $ends_at, prices: $prices) {
-//       id
-//     }
-//   }
-// `
-
 // Moment.locale('ru');
 
 const createEventMutation = gql`
-  mutation ($title: String!, $description: String!, $image_name: String!, $site_url: String!, $starts_at: DateTime!, $ends_at: DateTime!, $prices: [PriceInput]){
-    createEvent(title: $title, description: $description, image_name: $image_name, site_url: $site_url, starts_at: $starts_at, ends_at: $ends_at, prices: $prices) {
+  mutation(
+    $title: String!,
+    $description: String!,
+    $image_name: String!,
+    $site_url: String!,
+    $starts_at: DateTime!,
+    $ends_at: DateTime!,
+    $prices: [PriceInput]
+  ) {
+    createEvent(
+      title: $title,
+      description: $description,
+      image_name: $image_name,
+      site_url: $site_url,
+      starts_at: $starts_at,
+      ends_at: $ends_at,
+      prices: $prices
+    ) {
       id
     }
   }
@@ -79,7 +86,6 @@ class AddEventScreen extends React.Component {
     const {actionDatePicker, year, month, day} = await DatePickerAndroid.open({
       minDate: currentDate,
       date: currentDate,
-      
     });
 
     const {actionTimePicker, hour, minute} = await TimePickerAndroid.open({
@@ -117,9 +123,6 @@ class AddEventScreen extends React.Component {
   }
 
   pickImage = async () => {
-    console.log(this.state.starts_at)
-    console.log(this.state.ends_at)
-
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],

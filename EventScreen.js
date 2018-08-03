@@ -13,9 +13,9 @@ export default class EventScreen extends Component {
     const AWS = require('aws-sdk');
     const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
 
-    var params = {Bucket: 'senbi', Key: 'images/toleuov/1533208689907.jpg'};
+    var params = {Bucket: 'senbi', Key: 'images/toleuov/1533217602802.jpg'};
     s3.getSignedUrl('getObject', params, (err, url) => {
-        // console.log('Your  pre-signed URL is', url);
+        console.log('Your  pre-signed URL is', url);
         this.setState({
           imageUrl: url
         })
