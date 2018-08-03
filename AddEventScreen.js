@@ -1,7 +1,7 @@
 import React from 'react'
 import { graphql } from 'react-apollo'
 import { gql } from 'apollo-boost'
-import { View, ScrollView, TouchableOpacity, FlatList, Image, Text, StyleSheet, KeyboardAvoidingView, TimePickerAndroid, DatePickerAndroid } from 'react-native'
+import { View, ScrollView, TouchableOpacity, FlatList, AsyncStorage, Image, Text, StyleSheet, KeyboardAvoidingView, TimePickerAndroid, DatePickerAndroid } from 'react-native'
 import { TextInput } from 'react-native-paper';
 import { ImagePicker } from 'expo';
 import Moment from 'moment';
@@ -53,7 +53,18 @@ class AddEventScreen extends React.Component {
     prices: [],
     label: '',
     amount: '',
-    image: ''
+    image: '',
+    isLoading: true
+  }
+
+  componentDidMount() {
+    AsyncStorage.getItem('user').then((user) => {
+      // console.log(user)
+      this.setState({
+        isLoading: false,
+        username: JSON.parse(user).username
+      });
+    });
   }
 
   handleAddPriceForm = () => {
@@ -139,7 +150,7 @@ class AddEventScreen extends React.Component {
 
     const timestamp = '' + Date.now()
 
-    const params = {Bucket: 'senbi', Key: `images/toleuov/${timestamp}.jpg`, ContentType: 'image/jpeg'};
+    const params = {Bucket: 'senbi', Key: `images/${this.state.username}/${timestamp}.jpg`, ContentType: 'image/jpeg'};
     s3.getSignedUrl('putObject', params, function (err, url) {
       // console.log('Your generated pre-signed URL is', url);
 
