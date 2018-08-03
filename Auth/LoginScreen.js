@@ -49,6 +49,7 @@ class LoginScreen extends React.Component {
       this.props.navigation.navigate('Main')
     }
     catch(e) {
+      console.log(e)
       alert("Email or password does not match")
     }
 

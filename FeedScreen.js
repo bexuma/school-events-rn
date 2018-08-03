@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, RefreshControl, StyleSheet, Text, FlatList, TouchableOpacity } from 'react-native'
+import { View, ActivityIndicator, RefreshControl, AsyncStorage, StyleSheet, Text, FlatList, TouchableOpacity } from 'react-native'
 import { graphql } from 'react-apollo'
 import { gql } from 'apollo-boost'
 
@@ -9,6 +9,7 @@ const allEventsQuery = gql`
       id
       title
       description
+      image_name
     }
   }
 `
@@ -37,7 +38,18 @@ class FeedScreen extends Component {
     this.state = {
       events: [],
       refreshing: false,
+      isLoading: true
     }
+  }
+
+  componentDidMount() {
+    AsyncStorage.getItem('user').then((user) => {
+      console.log(user)
+      this.setState({
+        isLoading: false,
+        user: JSON.parse(user)
+      });
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -53,7 +65,8 @@ class FeedScreen extends Component {
     return (
       <TouchableOpacity style={styles.recipe} onPress={() =>
           navigation.navigate('Event', {
-            event: item
+            event: item,
+            user: this.state.user
           })
         }>
         <View>
@@ -71,6 +84,18 @@ class FeedScreen extends Component {
   }
 
   render() {
+    if (this.state.isLoading) {
+      return <View></View>
+    }
+
+    if (this.props.allEventsQuery.loading) {
+      return (
+        <View style={{flex: 1, padding: 20}}>
+          <ActivityIndicator/>
+        </View>
+      )
+    }
+
     return (
       <View style={styles.container}>
         <FlatList

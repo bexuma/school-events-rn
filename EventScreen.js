@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, Button, Image, AsyncStorage, StyleSheet, ScrollView, FlatList } from 'react-native';
 import Moment from 'moment';
 require('moment/locale/ru.js');
+// Moment.locale('ru');
 
 export default class EventScreen extends Component {
 
@@ -10,12 +11,18 @@ export default class EventScreen extends Component {
   }
 
   componentDidMount() {
+    const { navigation } = this.props;
+    const user = navigation.getParam('user', 'user is not found in props')
+    const image_name = navigation.getParam('event', 'image_name is not found in props').image_name
+
+    const username = user.username
+
     const AWS = require('aws-sdk');
     const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
 
-    var params = {Bucket: 'senbi', Key: 'images/toleuov/1533217602802.jpg'};
+    var params = {Bucket: 'senbi', Key: `images/${username}/${image_name}.jpg`};
     s3.getSignedUrl('getObject', params, (err, url) => {
-        console.log('Your  pre-signed URL is', url);
+        console.log('Your pre-signed URL is:', url);
         this.setState({
           imageUrl: url
         })
@@ -26,7 +33,6 @@ export default class EventScreen extends Component {
   render() {
     const { navigation } = this.props;
     const event = navigation.getParam('event', '')
-    Moment.locale('ru');
 
     return (
       <ScrollView style={styles.container}>
