@@ -7,12 +7,12 @@ import { setContext } from 'apollo-link-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import FeedScreen from './FeedScreen';
-import AddEventScreen from './AddEventScreen';
+import CreateEventScreen from './CreateEventScreen';
 import MyProfileScreen from './MyProfileScreen';
 import LoginScreen from './Auth/LoginScreen';
 import RegisterScreen from './Auth/RegisterScreen';
 import AuthLoadingScreen from './Auth/AuthLoadingScreen';
-import EventScreen from './EventScreen';
+import EventScreen from './Event/EventScreen';
 
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
@@ -48,7 +48,7 @@ const client = new ApolloClient({
 const TabNavigator = createBottomTabNavigator(
   {
     Feed: FeedScreen,
-    AddEvent: AddEventScreen,
+    AddEvent: CreateEventScreen,
     MyProfile: MyProfileScreen,
   },
   {

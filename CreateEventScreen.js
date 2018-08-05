@@ -32,7 +32,7 @@ const createEventMutation = gql`
   }
 `
 
-class AddEventScreen extends React.Component {
+class CreateEventScreen extends React.Component {
   static navigationOptions = {
     title: 'Create new recipe',
     headerStyle: {
@@ -371,4 +371,4 @@ const styles = StyleSheet.create({
   
 })
 
-export default graphql(createEventMutation, {name: 'createEventMutation'})(AddEventScreen)
+export default graphql(createEventMutation, {name: 'createEventMutation'})(CreateEventScreen)
