@@ -65,14 +65,15 @@ export default class MyProfileScreen extends Component {
             <Text  style={{ fontWeight: 'bold', textAlign: 'center', color: '#282828' }}>Фотовыставка «Аркаим – Страна Городов: Пространство и Образы»</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-        // <Button
-        //   title="logout"
-        //   onPress={
-        //     this._signOutAsync
-        //   }
-        // />
+        <Button
+          title="logout"
+          onPress={
+            this._signOutAsync
+          }
+        />
 
+      </ScrollView>
+   
     );
   }
 }
