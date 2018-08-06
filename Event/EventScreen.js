@@ -10,10 +10,11 @@ require('moment/locale/ru.js');
 export default class EventScreen extends Component {
   state = {
     imageUrl: '',
-    numberOfParticipants: 0
+    numberOfParticipants: 0,
+    isLoading: true
   }
 
-  componentDidMount() {
+  componentDidMount = async () => {
     const { navigation } = this.props;
     const user = navigation.getParam('user', 'user is not found in props')
     const image_name = navigation.getParam('event', 'image_name is not found in props').image_name
@@ -23,11 +24,12 @@ export default class EventScreen extends Component {
     const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
 
     var params = {Bucket: 'senbi', Key: `images/${username}/${image_name}.jpg`};
-    s3.getSignedUrl('getObject', params, (err, url) => {
+    await s3.getSignedUrl('getObject', params, (err, url) => {
         // console.log('Your pre-signed URL is:', url);
         this.setState({
           imageUrl: url,
-          numberOfParticipants: this.props.navigation.getParam('event', '').participantIds.length
+          numberOfParticipants: this.props.navigation.getParam('event', '').participantIds.length,
+          isLoading: false
         })
     });
   }
@@ -60,6 +62,10 @@ export default class EventScreen extends Component {
         </View>
       </View>
     );
+
+    if (this.state.isLoading) {
+      return <View></View>
+    }
 
     return (
       <ScrollView style={styles.container}>
