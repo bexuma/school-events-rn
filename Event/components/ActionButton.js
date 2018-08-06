@@ -60,14 +60,14 @@ class ActionButton extends Component {
          variables: {eventId}
         })
 
-        this.props.updateParticipantsNumber(result.data.deleteParticipation.event.participantIds.length)
+        this.props.updateNumberOfParticipants(result.data.deleteParticipation.event.participantIds.length)
 
       } else {
         const result = await this.props.createParticipationMutation({
          variables: {eventId}
         })
 
-        this.props.updateParticipantsNumber(result.data.createParticipation.event.participantIds.length)
+        this.props.updateNumberOfParticipants(result.data.createParticipation.event.participantIds.length)
       }
 
       this.setState(previousState => {

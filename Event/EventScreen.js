@@ -34,8 +34,18 @@ export default class EventScreen extends Component {
     });
   }
 
-  updateParticipantsNumber = (numberOfParticipants) => {
+  updateNumberOfParticipants = (numberOfParticipants) => {
     this.setState({ numberOfParticipants })
+  }
+
+  formatNumberOfParticipants = (numberOfParticipants) => {
+    if (numberOfParticipants % 10 === 1) {
+      return 'участник';
+    } else if (numberOfParticipants % 10 === 5 && numberOfParticipants % 10 === 1) {
+      return 'участника';
+    } else {
+      return 'участников';
+    }
   }
 
   render() {
@@ -51,7 +61,7 @@ export default class EventScreen extends Component {
         <View style={styles.text}>
           <TouchableOpacity>
             <Text>
-              <Text style={{ fontWeight: 'bold' }}>{this.state.numberOfParticipants}</Text> участников
+              <Text style={{ fontWeight: 'bold' }}>{this.state.numberOfParticipants}</Text> {this.formatNumberOfParticipants(this.state.numberOfParticipants)}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity>
@@ -75,7 +85,7 @@ export default class EventScreen extends Component {
         />
 
         <View style={styles.common}>
-          <ActionButton eventId={event.id} participantIds={participantIds} updateParticipantsNumber={this.updateParticipantsNumber} />
+          <ActionButton eventId={event.id} participantIds={participantIds} updateNumberOfParticipants={this.updateNumberOfParticipants} />
         </View>
 
         {WhoIsIn}

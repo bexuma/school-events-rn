@@ -8,7 +8,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import FeedScreen from './FeedScreen';
 import CreateEventScreen from './CreateEventScreen';
-import MyProfileScreen from './MyProfileScreen';
+import MyProfileScreen from './Profile/MyProfileScreen';
 import LoginScreen from './Auth/LoginScreen';
 import RegisterScreen from './Auth/RegisterScreen';
 import AuthLoadingScreen from './Auth/AuthLoadingScreen';
