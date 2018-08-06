@@ -20,7 +20,7 @@ const authLink = setContext(async (_, { headers }) => {
     const token = await AsyncStorage.getItem('token');
     if (token !== null) {
       // We have data!!
-      console.log(token);
+      // console.log(token);
       return {
         headers: {
           authorization: "Bearer " + token

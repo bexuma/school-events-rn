@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
-import { graphql } from 'react-apollo'
+import { Text, View, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
+import { graphql, compose } from 'react-apollo'
 import { gql } from 'apollo-boost'
 
 const createParticipationMutation = gql`
@@ -10,9 +10,22 @@ const createParticipationMutation = gql`
     createParticipation(
       eventId: $eventId,
     ) {
-      id
       event {
-        numberOfParticipants
+        participantIds
+      }
+    }
+  }
+`
+
+const deleteParticipationMutation = gql`
+  mutation(
+    $eventId: ID!
+  ) {
+    deleteParticipation(
+      eventId: $eventId,
+    ) {
+      event {
+        participantIds
       }
     }
   }
@@ -20,30 +33,59 @@ const createParticipationMutation = gql`
 
 class ActionButton extends Component {
   state = {
-    pressed: false,
-  };
+    isLoading: true
+  }
+
+  componentDidMount = async () => {
+    await AsyncStorage.getItem('user').then((user) => {
+      this.setState({
+        isLoading: false,
+        userId: JSON.parse(user).id
+      });
+    });
+
+    const isParticipating = this.props.participantIds.includes(parseInt(this.state.userId))
+
+    this.setState({
+      isParticipating: isParticipating
+    })
+  }
 
   handleOnPress = async () => {
     const eventId = this.props.eventId
+
     try {
-      const result = await this.props.createParticipationMutation({
-       variables: {eventId}
-      })
+      if (this.state.isParticipating) {
+        const result = await this.props.deleteParticipationMutation({
+         variables: {eventId}
+        })
+
+        this.props.updateParticipantsNumber(result.data.deleteParticipation.event.participantIds.length)
+
+      } else {
+        const result = await this.props.createParticipationMutation({
+         variables: {eventId}
+        })
+
+        this.props.updateParticipantsNumber(result.data.createParticipation.event.participantIds.length)
+      }
 
       this.setState(previousState => {
-        return { pressed: !previousState.pressed };
+        return { isParticipating: !previousState.isParticipating };
       });
-
-      this.props.updateParticipantsNumber(result.data.createParticipation.event.numberOfParticipants)
+       
     }
     catch(e) {
-      alert("Error, see the logs")
       console.log(e)
     }
     
   };
 
   render() {
+    if (this.state.isLoading) {
+      return <View></View>
+    }
+
     return (
       <TouchableOpacity
         onPress={this.handleOnPress}
@@ -51,16 +93,16 @@ class ActionButton extends Component {
         <View
           style={[
             styles.general,
-            this.state.pressed ? styles.pressed : styles.unpressed,
+            this.state.isParticipating ? styles.pressed : styles.unpressed,
           ]}
         >
           <Text
             style={[
               styles.text,
-              this.state.pressed ? styles.pressedText : styles.unpressedText,
+              this.state.isParticipating ? styles.pressedText : styles.unpressedText,
             ]}
           >
-            {this.state.pressed ? 'Вы идете' : 'Пойду'}
+            {this.state.isParticipating ? 'Вы идете' : 'Пойду'}
           </Text>
         </View>
 
@@ -96,5 +138,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
-export default graphql(createParticipationMutation, {name: 'createParticipationMutation'})(ActionButton)
+export default compose(graphql(createParticipationMutation, {name: 'createParticipationMutation'}), graphql(deleteParticipationMutation, {name: 'deleteParticipationMutation'}))(ActionButton)

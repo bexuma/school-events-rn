@@ -24,9 +24,10 @@ export default class EventScreen extends Component {
 
     var params = {Bucket: 'senbi', Key: `images/${username}/${image_name}.jpg`};
     s3.getSignedUrl('getObject', params, (err, url) => {
-        console.log('Your pre-signed URL is:', url);
+        // console.log('Your pre-signed URL is:', url);
         this.setState({
-          imageUrl: url
+          imageUrl: url,
+          numberOfParticipants: this.props.navigation.getParam('event', '').participantIds.length
         })
     });
   }
@@ -38,6 +39,7 @@ export default class EventScreen extends Component {
   render() {
     const { navigation } = this.props;
     const event = navigation.getParam('event', '')
+    const participantIds = navigation.getParam('event', '').participantIds
 
     const WhoIsIn = (
       <View style={styles.iconInfo}>
@@ -67,7 +69,7 @@ export default class EventScreen extends Component {
         />
 
         <View style={styles.common}>
-          <ActionButton eventId={event.id} updateParticipantsNumber={this.updateParticipantsNumber} />
+          <ActionButton eventId={event.id} participantIds={participantIds} updateParticipantsNumber={this.updateParticipantsNumber} />
         </View>
 
         {WhoIsIn}

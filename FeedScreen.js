@@ -10,7 +10,7 @@ const allEventsQuery = gql`
       title
       description
       image_name
-      numberOfParticipants
+      participantIds
     }
   }
 `
@@ -108,6 +108,7 @@ class FeedScreen extends Component {
               onRefresh={this._onRefresh}
             />
           }
+          keyExtractor={(item, index) => index.toString()}
         />
       </View>
     )
