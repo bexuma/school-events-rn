@@ -20,11 +20,7 @@ export default class MyProfileScreen extends Component {
         user: JSON.parse(user)
       });
 
-      console.log("1", this.state.user)
-
     });
-
-    console.log(this.state.user)
 
     const avatar = this.state.user.avatar
     const username = this.state.user.username
