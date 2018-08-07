@@ -13,11 +13,6 @@ import RegisterScreen from './Auth/RegisterScreen';
 import AuthLoadingScreen from './Auth/AuthLoadingScreen';
 import EventScreen from './Event/EventScreen';
 
-// Lyailya is here
-
-//Kuandyk is not here
-// Bex is Here
-
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
   try {
