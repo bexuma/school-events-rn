@@ -5,7 +5,6 @@ import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost'
 import { ApolloProvider } from 'react-apollo'
 import { setContext } from 'apollo-link-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import FeedScreen from './FeedScreen';
 import CreateEventScreen from './CreateEventScreen';
 import MyProfileScreen from './Profile/MyProfileScreen';
@@ -17,6 +16,7 @@ import EventScreen from './Event/EventScreen';
 // Lyailya is here
 
 //Kuandyk is not here
+// Bex is Here
 
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
