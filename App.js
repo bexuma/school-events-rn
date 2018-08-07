@@ -5,7 +5,6 @@ import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost'
 import { ApolloProvider } from 'react-apollo'
 import { setContext } from 'apollo-link-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import FeedScreen from './FeedScreen';
 import CreateEventScreen from './CreateEventScreen';
 import MyProfileScreen from './Profile/MyProfileScreen';
