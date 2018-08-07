@@ -11,6 +11,9 @@ const allEventsQuery = gql`
       description
       image_name
       participantIds
+      hostedBy {
+        username
+      }
     }
   }
 `

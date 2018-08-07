@@ -1,7 +1,7 @@
 import React from 'react'
 import { graphql, compose } from 'react-apollo'
 import gql from 'graphql-tag'
-import { View, ActivityIndicator, ScrollView, TouchableOpacity, Button, FlatList, Image, Text, StyleSheet, TouchableHighlight, KeyboardAvoidingView } from 'react-native'
+import { View, ActivityIndicator, ScrollView, TouchableOpacity, AsyncStorage, Button, FlatList, Image, Text, StyleSheet, TouchableHighlight, KeyboardAvoidingView } from 'react-native'
 import { TextInput } from 'react-native-paper';
 import { ImagePicker } from 'expo';
 
@@ -21,6 +21,10 @@ const signInUserMutation = gql`
       token
       user {
         id
+        name
+        email
+        username
+        avatar
       }
     }
   }
@@ -91,6 +95,9 @@ class SignupScreen extends React.Component {
       const result = await this.props.signInUserMutation({
        variables: {email, password}
       })
+
+      await AsyncStorage.setItem('token', result.data.signInUser.token);
+      await AsyncStorage.setItem('user', JSON.stringify(result.data.signInUser.user));
 
       this.props.navigation.navigate('Main', {
         user: result.data.signInUser.user

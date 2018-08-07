@@ -18,14 +18,14 @@ export default class EventScreen extends Component {
     const { navigation } = this.props;
     const user = navigation.getParam('user', 'user is not found in props')
     const image_name = navigation.getParam('event', 'image_name is not found in props').image_name
-    const username = user.username
+    const username = navigation.getParam('event', 'image_name is not found in props').hostedBy.username
 
     const AWS = require('aws-sdk');
     const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
 
     var params = {Bucket: 'senbi', Key: `images/${username}/${image_name}.jpg`};
     await s3.getSignedUrl('getObject', params, (err, url) => {
-        // console.log('Your pre-signed URL is:', url);
+        console.log('Your pre-signed URL is:', url);
         this.setState({
           imageUrl: url,
           numberOfParticipants: this.props.navigation.getParam('event', '').participantIds.length,
@@ -41,7 +41,7 @@ export default class EventScreen extends Component {
   formatNumberOfParticipants = (numberOfParticipants) => {
     if (numberOfParticipants % 10 === 1) {
       return 'участник';
-    } else if (numberOfParticipants % 10 === 5 && numberOfParticipants % 10 === 1) {
+    } else if (numberOfParticipants % 10 < 5 && numberOfParticipants % 10 > 1) {
       return 'участника';
     } else {
       return 'участников';

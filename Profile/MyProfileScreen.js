@@ -9,24 +9,44 @@ export default class MyProfileScreen extends Component {
   };
 
   state = {
-    name: '',
+    user: '',
     isLoading: true
   }
 
-  componentDidMount() {
-    AsyncStorage.getItem('user').then((user) => {
+  componentDidMount = async () => {
+    await AsyncStorage.getItem('user').then((user) => {
       // console.log(user)
       this.setState({
-        isLoading: false,
-        name: JSON.parse(user).name
+        user: JSON.parse(user)
       });
+
+      console.log("1", this.state.user)
+
     });
+
+    console.log(this.state.user)
+
+    const avatar = this.state.user.avatar
+    const username = this.state.user.username
+
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+
+    var params = {Bucket: 'senbi', Key: `images/${username}/photos/${avatar}.jpg`};
+    await s3.getSignedUrl('getObject', params, (err, url) => {
+        console.log('Your pre-signed avatar URL is:', url);
+        this.setState({
+          imageUrl: url,
+          isLoading: false
+        })
+    });
+
   }
 
   render() {
 
     if (this.state.isLoading) {
-      return <Text>SDFdfds</Text>
+      return <View></View>
     }
 
     const Name = (
@@ -37,7 +57,7 @@ export default class MyProfileScreen extends Component {
 
     return (
       <ScrollView style={styles.container}>
-  {/*      <View style={styles.image}>
+        <View style={styles.image}>
           <Image
             style={{
               height: 120,
@@ -46,10 +66,10 @@ export default class MyProfileScreen extends Component {
             }}
             resizeMode="contain"
             source={{
-              uri: user.pic_url,
+              uri: this.state.imageUrl,
             }}
           />
-        </View>*/}
+        </View>
         {Name}
         {/*<View style={styles.violetContainer}>
           <View style={styles.infoBlocks}>

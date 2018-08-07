@@ -13,6 +13,7 @@ const signInUserMutation = gql`
         name
         email
         username
+        avatar
       }
     }
   }
