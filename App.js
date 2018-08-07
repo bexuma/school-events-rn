@@ -16,6 +16,8 @@ import EventScreen from './Event/EventScreen';
 
 // Lyailya is here
 
+//Kuandyk is not here
+
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
   try {
