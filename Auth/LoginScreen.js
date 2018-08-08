@@ -52,13 +52,14 @@ class LoginScreen extends React.Component {
         variables: { email, password },
       });
 
-      await AsyncStorage.setItem('token', result.data.signInUser.token);
-      await AsyncStorage.setItem(
-        'user',
-        JSON.stringify(result.data.signInUser.user)
-      );
+      console.log("1", result.data.signInUser.token);
 
-      this.props.navigation.navigate('Main');
+      await AsyncStorage.setItem('token', result.data.signInUser.token);
+      console.log("2", result.data.signInUser.token);
+      await AsyncStorage.setItem('user', JSON.stringify(result.data.signInUser.user));
+      console.log("3", result.data.signInUser.user);
+
+      this.props.navigation.navigate('App');
     } catch (e) {
       console.log(e);
       alert('Email or password does not match');
