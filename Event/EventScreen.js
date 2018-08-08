@@ -1,83 +1,34 @@
 import React, { Component } from 'react';
-import { Text, View, Button, Image, AsyncStorage, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { Text, View, Button, Dimensions, Image, AsyncStorage, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import ActionButton from './components/ActionButton';
-import { Feather } from '@expo/vector-icons';
 import Moment from 'moment';
 import { graphql } from 'react-apollo'
 import { gql } from 'apollo-boost'
 require('moment/locale/ru.js');
+import {
+  Ionicons,
+  Octicons,
+  MaterialCommunityIcons,
+  Entypo,
+  FontAwesome,
+  Feather,
+  MaterialIcons,
+} from '@expo/vector-icons';
 // Moment.locale('ru');
 
-const eventQuery = gql`
-  query ($eventId: ID!) {
-    event(eventId: $eventId) {
-      id
-      title
-      description
-      image_name
-      participantIds
-      hostedBy {
-        username
-      }
-    }
-  }
-`
-
-class EventScreen extends Component {
+export default class EventScreen extends Component {
   state = {
     imageUrl: '',
     isLoading: true
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.loading && !nextProps.error) {
-      this.setState({
-        event: JSON.stringify(nextProps.data.event),
-        isLoading: false,
-        numberOfParticipants: nextProps.data.event.participantIds.length
-      })
-    }
+  componentDidMount() {
+    this.setState({
+      numberOfParticipants: this.props.navigation.getParam('event', 'event is not found in props').participantIds.length
+    })
   }
 
-  // componentDidMount = async () => {
-  //   try {
-  //     console.log(this.props)
-  //     console.log(this.props.navigation.getParam('eventId', 'eventId is not found in props'))
-
-  //     // const eventId = navigation.getParam('event', 'image_name is not found in props').id
-  //     // const result = await this.props.eventQuery({
-  //     //  variables: {eventId}
-  //     // })
-
-  //     // this.setState({
-  //     //   event: JSON.stringify(result.data.event)
-  //     // })
-
-  //     // const { navigation } = this.props;
-  //     // const user = navigation.getParam('user', 'user is not found in props')
-  //     // const image_name = result.data.event.image_name
-  //     // const username = result.data.event.hostedBy.username
-
-  //     // const AWS = require('aws-sdk');
-  //     // const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
-
-  //     // var params = {Bucket: 'senbi', Key: `images/${username}/${image_name}.jpg`};
-  //     // await s3.getSignedUrl('getObject', params, (err, url) => {
-  //     //     console.log('Your pre-signed URL is:', url);
-  //     //     this.setState({
-  //     //       imageUrl: url,
-  //     //       numberOfParticipants: result.data.event.participantIds.length,
-  //     //       isLoading: false
-  //     //     })
-  //     // });
-  //   }
-  //   catch(e) {
-  //     console.log(e)
-  //   }
-  // }
-
   updateNumberOfParticipants = (numberOfParticipants) => {
-    // console.log(numberOfParticipants)
     this.setState({ numberOfParticipants })
   }
 
@@ -114,51 +65,99 @@ class EventScreen extends Component {
   }
 
   render() {
+    const event = this.props.navigation.getParam('event', 'event is not found in props')
 
-    if (!this.state.event) {
-      return <ActivityIndicator size="large" color="#0000ff" />
-    } else {
-      const event = JSON.parse(this.state.event)
+    const Description = (
+      <View style={styles.description}>
+        <Text style={{ color: 'grey' }}>{event.description}</Text>
+      </View>
+    );
 
-      return (
-        <ScrollView style={styles.container}>
-          <Image
-            style={{height: 200, marginBottom: 10}}
-            source={{uri: this.state.imageUrl}}
+    const Datetime = (
+      <View style={styles.iconInfo}>
+        <View style={styles.icon}>
+          <Ionicons name="md-calendar" size={24} color="#7E2FFF" />
+        </View>
+        <View style={styles.text}>
+          <Text>
+            {Moment(event.starts_at).format('Do MMMM YYYY года в HH:mm')}
+          </Text>
+        </View>
+      </View>
+    );
+
+    const Address = (
+      <View style={styles.iconInfo}>
+        <View style={styles.icon}>
+          <MaterialCommunityIcons
+            name="map-marker-outline"
+            size={24}
+            color="#7E2FFF"
           />
+        </View>
+        <View style={styles.text}>
+          <Text>{event.address}</Text>
+        </View>
+      </View>
+    );
 
-          <View style={styles.common}>
-            <ActionButton eventId={event.id} participantIds={event.participantIds} updateNumberOfParticipants={this.updateNumberOfParticipants} />
-          </View>
+    const Prices = (
+      <View style={styles.iconInfo}>
+        <View style={styles.icon}>
+          <MaterialCommunityIcons
+            name="cash-multiple"
+            size={24}
+            color="#7E2FFF"
+          />
+        </View>
+        <View style={styles.text}>
+          {!Array.isArray(event.prices) ||
+          !event.prices.length ? (
+            <Text>Свободный вход</Text>
+          ) : (
+            <FlatList
+              data={event.prices}
+              renderItem={({ item }) => (
+                <Text>
+                  {item.label ? `${item.label}: ` : ''}{item.amount} тенге
+                </Text>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          )}
+        </View>
+      </View>
+    );
 
-          {this.WhoIsIn(this.state.numberOfParticipants)}
-
-          <Text style={styles.title}>
+    return (
+      <ScrollView style={styles.container}>
+        <View style={styles.image}>
+          <Image
+            style={{
+              height: 200
+            }}
+            resizeMode="contain"
+            source={{
+              uri: event.imageUrl,
+            }}
+          />
+        </View>
+        <View style={styles.common}>
+          <Text style={{ fontWeight: '400', fontSize: 16 }}>
             {event.title}
           </Text>
+        </View>
+        <View style={styles.common}>
+          <ActionButton eventId={event.id} participantIds={event.participantIds} updateNumberOfParticipants={this.updateNumberOfParticipants} />
+        </View>
+        {this.WhoIsIn(this.state.numberOfParticipants)}
+        {Description}
+        {Datetime}
+        {Address}
+        {Prices}
+      </ScrollView>
+    )
 
-          <Text>
-            {event.description}
-          </Text>
-
-          <Text>
-            {event.site_url}
-          </Text>
-
-          <Text>
-            {Moment(event.starts_at).format('d MMM')}
-          </Text>
-
-          <FlatList
-            data={event.prices}
-            renderItem={
-              ({item}) => <Text>{item.label} {item.amount}</Text>
-            }
-          />
-          
-        </ScrollView>
-      )
-    }
   }
 }
 
@@ -168,10 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   image: {
-    flex: 3,
-    alignItems: 'center',
-    padding: 8,
-    justifyContent: 'center',
+    width: Dimensions.get('window').width
   },
   common: {
     flex: 1,
@@ -196,11 +192,6 @@ const styles = StyleSheet.create({
   text: {
     flex: 13,
     paddingRight: 16,
-  },
+  }
+
 });
-
-export default graphql(eventQuery, {
-  options: (props) => ({ variables: { eventId: props.navigation.getParam('eventId', 'eventId was not passed from FeedScreen') } })
-})( EventScreen );
-
-// export default graphql(eventQuery)( EventScreen );
