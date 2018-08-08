@@ -1,7 +1,15 @@
-import React from 'react'
-import { graphql } from 'react-apollo'
-import gql from 'graphql-tag'
-import { View, TouchableOpacity, ActivityIndicator, Text, StyleSheet, AsyncStorage } from 'react-native'
+import React from 'react';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import {
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+  Text,
+  StyleSheet,
+  AsyncStorage,
+  Dimensions,
+} from 'react-native';
 import { TextInput } from 'react-native-paper';
 
 const signInUserMutation = gql`
@@ -17,7 +25,7 @@ const signInUserMutation = gql`
       }
     }
   }
-`
+`;
 
 class LoginScreen extends React.Component {
   static navigationOptions = {
@@ -29,89 +37,83 @@ class LoginScreen extends React.Component {
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'normal',
-    }
+    },
   };
 
   state = {
     email: '',
-    password: ''
-  }
+    password: '',
+  };
 
   handleSignInButton = async () => {
     try {
-      const {email, password} = this.state
+      const { email, password } = this.state;
       const result = await this.props.signInUserMutation({
-       variables: {email, password}
-      })
+        variables: { email, password },
+      });
 
       await AsyncStorage.setItem('token', result.data.signInUser.token);
-      await AsyncStorage.setItem('user', JSON.stringify(result.data.signInUser.user));
+      await AsyncStorage.setItem(
+        'user',
+        JSON.stringify(result.data.signInUser.user)
+      );
 
-      this.props.navigation.navigate('Main')
+      this.props.navigation.navigate('Main');
+    } catch (e) {
+      console.log(e);
+      alert('Email or password does not match');
     }
-    catch(e) {
-      console.log(e)
-      alert("Email or password does not match")
-    }
+  };
 
-  }
-
-  render () {
+  render() {
     if (this.props.signInUserMutation.loading) {
       return (
-        <View style={{flex: 1, padding: 20}}>
-          <ActivityIndicator/>
+        <View style={{ flex: 1, padding: 20 }}>
+          <ActivityIndicator />
         </View>
-      )
+      );
     }
 
     return (
       <View style={styles.container}>
         <TextInput
-          label='E-mail'
+          theme={{ colors: { primary: '#26A4FF' } }}
+          label="Электронная почта"
           underlineColor="#26A4FF"
-          selectionColor="#26A4FF"
-          placeholder='Type your email...'
+          placeholder="Введите адрес электронной почты.."
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
           autoCapitalize="none"
         />
 
         <TextInput
-          label='Password'
+          theme={{ colors: { primary: '#26A4FF' } }}
+          label="Пароль"
           underlineColor="#26A4FF"
-          selectionColor="#26A4FF"
           secureTextEntry={true}
-          placeholder='Type your password...'
+          placeholder="Введите пароль..."
           onChangeText={password => this.setState({ password })}
           value={this.state.password}
         />
 
+        <View style={{ alignItems: 'center', paddingTop: 8 }}>
+          <TouchableOpacity
+            style={styles.signInButton}
+            onPress={() => {
+              this.handleSignInButton();
+            }}>
+            <Text style={styles.signInButtonText}>Войти</Text>
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity
-          style={styles.signInButton}
+          style={{ alignItems: 'center', paddingTop: 8 }}
           onPress={() => {
-            this.handleSignInButton()
-          }}
-          
-        >
-          <Text style={styles.signInButtonText}>
-            Войти
-          </Text>
+            this.props.navigation.navigate('Register');
+          }}>
+          <Text>Do not have an account? Sign Up</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={{padding: 8}}
-          onPress={() => {
-            this.props.navigation.navigate('Register')
-          }}
-        >
-          <Text style={{textAlign: 'center'}}>
-            Do not have an account? Sign Up
-          </Text>
-        </TouchableOpacity>
-
       </View>
-    )
+    );
   }
 }
 
@@ -120,18 +122,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingLeft: 16,
-    paddingRight: 16
+    paddingRight: 16,
   },
   signInButton: {
+    height: 32,
+    width: Dimensions.get('window').width - 32,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
     backgroundColor: '#26A4FF',
-    padding: 10,
-    marginTop: 10
   },
   signInButtonText: {
-    color: "#fff",
-    fontWeight: 'bold'
-  }
-})
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+});
 
-export default graphql(signInUserMutation, {name: 'signInUserMutation'})(LoginScreen)
+export default graphql(signInUserMutation, { name: 'signInUserMutation' })(
+  LoginScreen
+);
