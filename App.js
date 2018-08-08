@@ -50,6 +50,10 @@ const FeedNavigator = createStackNavigator({
   Event: EventScreen,
 });
 
+const CreateEventNavigator = createStackNavigator({
+  AddEvent: CreateEventScreen,
+});
+
 const MyProfileNavigator = createStackNavigator({
   MyProfile: MyProfileScreen,
   Settings: SettingsScreen,
@@ -57,10 +61,11 @@ const MyProfileNavigator = createStackNavigator({
   // EditAccount: EditAccountScreen,
 });
 
+
 const TabNavigator = createBottomTabNavigator(
   {
     Feed: FeedNavigator,
-    AddEvent: CreateEventScreen,
+    AddEvent: CreateEventNavigator,
     MyProfile: MyProfileNavigator,
   },
   {

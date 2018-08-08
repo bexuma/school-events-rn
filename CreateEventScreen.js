@@ -20,6 +20,7 @@ import { ImagePicker } from 'expo';
 import Moment from 'moment';
 require('moment/locale/ru.js');
 // Moment.locale('ru');
+import { Entypo, Ionicons } from '@expo/vector-icons';
 
 const createEventMutation = gql`
   mutation(
@@ -48,6 +49,16 @@ const createEventMutation = gql`
 `;
 
 class CreateEventScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Новое мероприятие',
+    headerStyle: {
+      backgroundColor: '#26A4FF',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'normal',
+    },
+  };
   state = {
     title: '',
     description: '',
@@ -60,6 +71,7 @@ class CreateEventScreen extends React.Component {
     amount: '',
     image: '',
     isLoading: true,
+    addPriceFormIsOpened: false,
   };
 
   componentDidMount() {
@@ -77,11 +89,19 @@ class CreateEventScreen extends React.Component {
       label: this.state.label,
       amount: parseInt(this.state.amount, 10),
     };
+    this.setState(previousState => {
+      return {
+        addPriceFormIsOpened: !previousState.addPriceFormIsOpened,
+        prices: [...this.state.prices, price],
+        label: '',
+        amount: '',
+      };
+    });
+  };
 
-    this.setState({
-      prices: [...this.state.prices, price],
-      label: '',
-      amount: '',
+  openAddPriceForm = () => {
+    this.setState(previousState => {
+      return { addPriceFormIsOpened: !previousState.addPriceFormIsOpened };
     });
   };
 
@@ -90,7 +110,7 @@ class CreateEventScreen extends React.Component {
 
     tMonth = month <= 8 ? `0${month + 1}` : `${month + 1}`;
     tDay = day <= 9 ? `0${day}` : `${day}`;
-    tHour = hour <= 9 ? `0${hour}` : `${hour}`;
+    tHour = hour - 6 <= 9 ? `0${hour - 6}` : `${hour - 6}`;
     tMinute = minute <= 9 ? `0${minute}` : `${minute}`;
 
     return `${year}-${tMonth}-${tDay}T${tHour}:${tMinute}:00Z`;
@@ -242,8 +262,24 @@ class CreateEventScreen extends React.Component {
     const limit = 78;
 
     return (
-      <KeyboardAvoidingView behavior="padding" enabled>
+      <KeyboardAvoidingView 
+      keyboardVerticalOffset={100}
+      behavior="padding" 
+      enabled>
         <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
+          {image ? (
+            <Image source={{ uri: image.uri }} style={{ height: 200 }} />
+          ) : (
+            <TouchableOpacity
+              style={styles.addImagebutton}
+              onPress={this.pickImage}>
+              <Entypo name="image" size={120} color="#fff" />
+              <Text
+                style={[styles.buttonText, { fontSize: 15, color: '#fff' }]}>
+                Добавьте изображение
+              </Text>
+            </TouchableOpacity>
+          )}
           <TextInput
             theme={{ colors: { primary: '#26A4FF' } }}
             underlineColor="#26A4FF"
@@ -264,6 +300,40 @@ class CreateEventScreen extends React.Component {
             onChangeText={description => this.setState({ description })}
             value={this.state.description}
           />
+          <Text style={styles.header}>Дата и время</Text>
+          <View style={styles.dateTime}>
+            <TouchableOpacity onPress={this.handleSelectStartsAtForm}>
+              {this.state.starts_at === '' ||
+              this.state.starts_at.length === 0 ? (
+                <Text style={styles.buttonText}>
+                  Выберите дату и время начала
+                </Text>
+              ) : (
+                <Text style={styles.buttonText}>
+                  <Text style={{ color: 'grey' }}>Начало: </Text>
+                  {Moment(this.state.starts_at).format('Do MMMM YYYY HH:mm')}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+          {this.state.starts_at === '' ||
+          this.state.starts_at.length === 0 ? null : (
+            <View style={styles.dateTime}>
+              <TouchableOpacity onPress={this.handleSelectEndsAtForm}>
+              {this.state.ends_at === '' ||
+              this.state.ends_at.length === 0 ? (
+                <Text style={styles.buttonText}>
+                  Выберите дату и время конца
+                </Text>
+              ) : (
+                <Text style={styles.buttonText}>
+                  <Text style={{ color: 'grey' }}>Конец: </Text>
+                  {Moment(this.state.ends_at).format('Do MMMM YYYY HH:mm')}
+                </Text>
+              )}
+              </TouchableOpacity>
+            </View>
+          )}
 
           <TextInput
             theme={{ colors: { primary: '#26A4FF' } }}
@@ -278,81 +348,92 @@ class CreateEventScreen extends React.Component {
             theme={{ colors: { primary: '#26A4FF' } }}
             underlineColor="#26A4FF"
             label="Ссылка на сайт мероприятия"
-            placeholder="Добавьте UPL-ссылку на сайт"
+            placeholder="Добавьте URL-ссылку на сайт"
             onChangeText={site_url => this.setState({ site_url })}
             value={this.state.site_url}
           />
 
-          <Text style={[styles.header, { paddingTop: 2 }]}>Цены</Text>
+          <Text
+            style={[
+              styles.header,
+              this.state.addPriceFormIsOpened ? { paddingBottom: 0 } : null,
+            ]}>
+            Цены
+          </Text>
 
           <FlatList
             data={this.state.prices}
             renderItem={({ item }) => (
               <View style={styles.item}>
-                <Text style={styles.itemText}>{item.label}: </Text>
-                <Text>{item.amount}</Text>
+                <Text style={{ fontSize: 15 }}>
+                  {item.label}: {item.amount} тенге
+                </Text>
               </View>
             )}
           />
+          {this.state.addPriceFormIsOpened ? null : (
+            <TouchableOpacity
+              onPress={this.openAddPriceForm}
+              style={styles.addPrice}>
+              <Text style={styles.buttonText}>Добавить цену</Text>
+            </TouchableOpacity>
+          )}
 
-          <TextInput
-            theme={{ colors: { primary: '#26A4FF' } }}
-            underlineColor="#26A4FF"
-            label="Лэйбл"
-            placeholder="Добавьте лэйбл"
-            onChangeText={label => this.setState({ label })}
-            value={this.state.label}
-          />
-
-          <TextInput
-            theme={{ colors: { primary: '#26A4FF' } }}
-            underlineColor="#26A4FF"
-            label="Цена"
-            placeholder="Добавьте цену для этой категории"
-            onChangeText={amount => this.setState({ amount })}
-            value={this.state.amount}
-            keyboardType='numeric'
-          />
-
-          <TouchableOpacity
-            onPress={this.handleAddPriceForm}
-            style={styles.button}>
-            <Text style={styles.buttonText}>Добавить цену</Text>
-          </TouchableOpacity>
-<View style={styles.dateTime}>
-          <TouchableOpacity
-            onPress={this.handleSelectStartsAtForm}
-            style={styles.button}>
-            <Text style={styles.buttonText}>Выбрать дату и время начала</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={this.handleSelectEndsAtForm}
-            style={styles.button}>
-            <Text style={styles.buttonText}>Выбрать дату и время конца</Text>
-          </TouchableOpacity>
-</View>
-          {image ? (
-            <Image
-              source={{ uri: image.uri }}
-              style={{ height: 200, marginTop: 10 }}
-            />
+          {this.state.addPriceFormIsOpened ? (
+            <View>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ flex: 3, paddingRight: 16 }}>
+                  <TextInput
+                    theme={{ colors: { primary: '#26A4FF' } }}
+                    underlineColor="#26A4FF"
+                    label="Лэйбл"
+                    onChangeText={label => this.setState({ label })}
+                    value={this.state.label}
+                    maxLength={limit}
+                    multiline={true}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <TextInput
+                    theme={{ colors: { primary: '#26A4FF' } }}
+                    underlineColor="#26A4FF"
+                    label="Цена"
+                    onChangeText={amount => this.setState({ amount })}
+                    value={this.state.amount}
+                    keyboardType="numeric"
+                    maxLength={limit}
+                    multiline={true}
+                  />
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'flex-end',
+                    alignItems: 'flex-end',
+                  }}>
+                  <TouchableOpacity
+                    onPress={this.handleAddPriceForm}
+                    style={styles.addPrice}>
+                    <Ionicons
+                      name="ios-add-circle-outline"
+                      size={32}
+                      color="#26A4FF"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
           ) : null}
 
-          <TouchableOpacity
-            style={[styles.button, styles.addImagebutton]}
-            onPress={this.pickImage}>
-            <Text style={styles.buttonText}>Choose an image</Text>
-          </TouchableOpacity>
-<View style={styles.centerAndPadding}>
-          <TouchableOpacity
-            style={styles.submitButton}
-            onPress={() => {
-              this._createEvent(image.uri);
-              this.props.navigation.goBack();
-            }}>
-            <Text style={styles.submitButtonText}>Создать мероприятие</Text>
-          </TouchableOpacity>
+          <View style={styles.centerAndPadding}>
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={() => {
+                this._createEvent(image.uri);
+                this.props.navigation.goBack();
+              }}>
+              <Text style={styles.submitButtonText}>Создать мероприятие</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -364,46 +445,40 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     padding: 16,
-    paddingTop: 0,
-    marginTop: 24,
   },
   header: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#757575',
-    marginTop: 10,
+    color: '#0E334E',
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  dateTime: {
+    paddingBottom: 8,
   },
   item: {
     flex: 1,
-    flexDirection: 'row',
-    height: 40,
-    alignItems: 'center',
-    paddingLeft: 2,
-    paddingRight: 2,
-    borderBottomColor: '#f4f4f4',
-    borderBottomWidth: 1,
-  },
-  itemText: {
-    fontSize: 15,
-  },
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#26A69A',
-    padding: 10,
+    paddingTop: 4,
+    justifyContent: 'center',
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#26A4FF',
+    fontText: 15,
   },
   addImagebutton: {
-    marginTop: 10,
-    backgroundColor: '#009688',
-  }, 
-  dateTime:{
-    flexDirection: 'row',
+    paddingTop: 8,
+    height: 200,
+    width: Dimensions.get('window').width - 32,
+    backgroundColor: '#86CCFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   centerAndPadding: {
-    alignItems: 'center', paddingTop: 8, 
+    alignItems: 'center',
+    paddingTop: 8,
+  },
+  addPrice: {
+    paddingBottom: 8,
   },
   submitButton: {
     height: 32,
@@ -412,6 +487,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 16,
     backgroundColor: '#26A4FF',
+    marginBottom: 32,
   },
   submitButtonText: {
     color: '#fff',
