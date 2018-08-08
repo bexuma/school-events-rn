@@ -8,15 +8,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FeedScreen from './FeedScreen';
 import CreateEventScreen from './CreateEventScreen';
 import MyProfileScreen from './Profile/MyProfileScreen';
+import SettingsScreen from './Profile/SettingsScreen';
 import LoginScreen from './Auth/LoginScreen';
 import RegisterScreen from './Auth/RegisterScreen';
 import AuthLoadingScreen from './Auth/AuthLoadingScreen';
 import EventScreen from './Event/EventScreen';
-
-// Lyailya is here
-
-//Kuandyk is not here
-// Bex is Here
 
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
@@ -49,16 +45,29 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 })
 
+const FeedNavigator = createStackNavigator({
+  Feed: FeedScreen,
+  Event: EventScreen,
+});
+
+const MyProfileNavigator = createStackNavigator({
+  MyProfile: MyProfileScreen,
+  Settings: SettingsScreen,
+  // EditProfile: EditProfileScreen,
+  // EditAccount: EditAccountScreen,
+});
+
 const TabNavigator = createBottomTabNavigator(
   {
-    Feed: FeedScreen,
+    Feed: FeedNavigator,
     AddEvent: CreateEventScreen,
-    MyProfile: MyProfileScreen,
+    MyProfile: MyProfileNavigator,
   },
   {
     initialRouteName: 'Feed',
     tabBarOptions: {
-      activeTintColor: 'purple',
+      showLabel: false,
+      activeTintColor: '#26A4FF',
       inactiveTintColor: 'black',
     },
     navigationOptions: ({ navigation }) => ({
@@ -72,19 +81,18 @@ const TabNavigator = createBottomTabNavigator(
         } else if (routeName === 'MyProfile') {
           iconName = `ios-contact${focused ? '' : '-outline'}`;
         }
-        return <Ionicons name={iconName} size={25} color={tintColor} />;
+        return <Ionicons name={iconName} size={32} color={tintColor} />;
       },
     }),
   }
 );
 
-const AppStack = createStackNavigator({ Main: TabNavigator, Event: EventScreen });
 const AuthStack = createStackNavigator({ Login: LoginScreen, Register: RegisterScreen });
 
 const SwitchNavigator = createSwitchNavigator(
   {
     AuthLoading: AuthLoadingScreen,
-    App: AppStack,
+    App: TabNavigator,
     Auth: AuthStack
   },
   {

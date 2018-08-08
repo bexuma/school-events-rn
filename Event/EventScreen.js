@@ -165,11 +165,7 @@ class EventScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: 'white',
-  },
-  title: {
-    fontSize: 20
   },
   image: {
     flex: 3,
@@ -201,7 +197,6 @@ const styles = StyleSheet.create({
     flex: 13,
     paddingRight: 16,
   },
-
 });
 
 export default graphql(eventQuery, {
