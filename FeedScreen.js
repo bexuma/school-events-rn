@@ -40,13 +40,13 @@ const allEventsQuery = gql`
 
 class FeedScreen extends Component {
   static navigationOptions = {
-    title: 'Мероприятия',
+    title: 'Apta',
     headerStyle: {
-      backgroundColor: '#159688',
+      backgroundColor: '#26A4FF',
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
-      fontWeight: 'bold',
+      fontWeight: 'normal',
     }
   };
 
@@ -125,7 +125,7 @@ class FeedScreen extends Component {
         <View style={styles.actions}>
           <TouchableOpacity>
             <View>
-              <Octicons name="kebab-vertical" size={24} color="#7E2FFF" />
+              <Octicons name="kebab-vertical" size={24} color="#26A4FF" />
             </View>
           </TouchableOpacity>
         </View>

@@ -33,16 +33,16 @@ const createEventMutation = gql`
 `
 
 class CreateEventScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Create new recipe',
-    headerStyle: {
-      backgroundColor: '#009688',
-    },
-    headerTintColor: '#fff',
-    headerTitleStyle: {
-      fontWeight: 'bold',
-    }
-  };
+  // static navigationOptions = {
+  //   title: 'Create new recipe',
+  //   headerStyle: {
+  //     backgroundColor: '#009688',
+  //   },
+  //   headerTintColor: '#fff',
+  //   headerTitleStyle: {
+  //     fontWeight: 'bold',
+  //   }
+  // };
 
   state = {
     title: '',
@@ -201,12 +201,9 @@ class CreateEventScreen extends React.Component {
 
     return (
       <KeyboardAvoidingView
-        behavior="padding"
-        contentContainerStyle={{ flex: 1 }}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={32}
-        enabled
-      >
+        keyboardVerticalOffset={64}
+        behavior="padding" 
+        enabled>
       <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
         <TextInput
           label='Title'

@@ -104,11 +104,7 @@ export default class EventScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: 'white',
-  },
-  title: {
-    fontSize: 20
   },
   image: {
     flex: 3,

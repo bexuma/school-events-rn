@@ -24,11 +24,11 @@ class LoginScreen extends React.Component {
     title: 'Login',
     headerLeft: null,
     headerStyle: {
-      backgroundColor: '#009688',
+      backgroundColor: '#26A4FF',
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
-      fontWeight: 'bold',
+      fontWeight: 'normal',
     }
   };
 
@@ -69,15 +69,18 @@ class LoginScreen extends React.Component {
       <View style={styles.container}>
         <TextInput
           label='E-mail'
-          underlineColor="#159688"
+          underlineColor="#26A4FF"
+          selectionColor="#26A4FF"
           placeholder='Type your email...'
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
+          autoCapitalize="none"
         />
 
         <TextInput
           label='Password'
-          underlineColor="#159688"
+          underlineColor="#26A4FF"
+          selectionColor="#26A4FF"
           secureTextEntry={true}
           placeholder='Type your password...'
           onChangeText={password => this.setState({ password })}
@@ -121,7 +124,7 @@ const styles = StyleSheet.create({
   },
   signInButton: {
     alignItems: 'center',
-    backgroundColor: '#009688',
+    backgroundColor: '#26A4FF',
     padding: 10,
     marginTop: 10
   },
