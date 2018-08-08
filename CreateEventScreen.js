@@ -194,36 +194,6 @@ class CreateEventScreen extends React.Component {
       Key: `images/${this.state.username}/${timestamp}.jpg`,
       ContentType: 'image/jpeg',
     };
-    s3.getSignedUrl('putObject', params, function(err, url) {
-      // console.log('Your generated pre-signed URL is', url);
-
-      const request = new XMLHttpRequest();
-      //request.open('PUT', url);
-      request.onreadystatechange = e => {
-        if (request.readyState !== 4) {
-          return;
-        }
-
-        if (request.status === 200) {
-          // console.log('success', request.responseText);
-          console.log('Image successfully uploaded to S3');
-        } else {
-          console.warn('Error while sending the image to S3');
-        }
-
-        if (e) {
-          console.log(e);
-        }
-      };
-
-      request.open('PUT', url);
-      request.setRequestHeader('Content-Type', 'image/jpeg');
-      request.send({
-        uri: imageUri,
-        type: 'image/jpeg',
-        name: `${timestamp}.jpg`,
-      });
-    });
 
     try {
       const {
@@ -249,6 +219,37 @@ class CreateEventScreen extends React.Component {
       });
 
       console.log('CREATED');
+
+      s3.getSignedUrl('putObject', params, function(err, url) {
+        // console.log('Your generated pre-signed URL is', url);
+
+        const request = new XMLHttpRequest();
+        //request.open('PUT', url);
+        request.onreadystatechange = e => {
+          if (request.readyState !== 4) {
+            return;
+          }
+
+          if (request.status === 200) {
+            // console.log('success', request.responseText);
+            console.log('Image successfully uploaded to S3');
+          } else {
+            console.warn('Error while sending the image to S3');
+          }
+
+          if (e) {
+            console.log(e);
+          }
+        };
+
+        request.open('PUT', url);
+        request.setRequestHeader('Content-Type', 'image/jpeg');
+        request.send({
+          uri: imageUri,
+          type: 'image/jpeg',
+          name: `${timestamp}.jpg`,
+        });
+      });
     } catch (err) {
       console.log('err', err);
     }
@@ -463,7 +464,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#26A4FF',
-    fontText: 15,
+    fontSize: 15,
   },
   addImagebutton: {
     paddingTop: 8,
