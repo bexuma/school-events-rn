@@ -74,11 +74,13 @@ class FeedScreen extends Component {
     if (!nextProps.allEventsQuery.loading && !nextProps.allEventsQuery.error) {
 
       const { allEvents } = nextProps.allEventsQuery;
-      const imageUrls = allEvents.map(event => this.loadImage(event));
-      
+      const promiseImageUrls = allEvents.map(event => this.loadImage(event));
+      const promiseAvatarUrls = allEvents.map(event => this.loadAvatar(event));      
 
-      const result = await Promise.all(imageUrls)
-      const newEvents = allEvents.map((event, index) => ({ ...event, imageUrl: result[index]}))
+      const imageUrls = await Promise.all(promiseImageUrls)
+      const avatarUrls = await Promise.all(promiseAvatarUrls)
+
+      const newEvents = allEvents.map((event, index) => ({ ...event, imageUrl: imageUrls[index], avatarUrl: avatarUrls[index]}))
        
       this.setState({
         events: newEvents
@@ -86,7 +88,24 @@ class FeedScreen extends Component {
     }
   }
 
-  loadImage = async (item) => {
+  loadAvatar = (item) => {
+    const avatar = item.hostedBy.avatar
+    const username = item.hostedBy.username
+
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+
+    const params = {Bucket: 'senbi', Key: `images/${username}/photos/${avatar}.jpg`};
+    
+    return new Promise ((resolve, reject) => {
+      s3.getSignedUrl('getObject', params, (err, url) => {
+        err ? reject(err) : resolve(url);
+      })
+    }) 
+
+  }
+
+  loadImage = (item) => {
     const image_name = item.image_name
     const username = item.hostedBy.username
 
@@ -103,8 +122,24 @@ class FeedScreen extends Component {
 
   }
 
+  renderPrices = (prices) =>  {
+    let text
+    if (prices.length === 1) {
+      text = `\u20B8${prices[0].amount}`
+    } else if (prices.length > 1) {
+      const amounts = prices.map(price => price.amount);
+      amounts.sort((a, b) => a - b)
+      text = `\u20B8${amounts[0]}-\u20B8${amounts[amounts.length - 1]}`
+    } else {
+      text = "Свободный вход"
+    }
+
+    return <Text>{text}</Text>
+  }
+
   renderEvent = ({ item }) => {
     const { navigation } = this.props;
+    // console.log(item.avatarUrl)
 
     const Top = (
       <View style={styles.top}>
@@ -113,8 +148,7 @@ class FeedScreen extends Component {
             <Image
               style={{ height: 32, width: 32 }}
               source={{
-                uri:
-                  'https://botw-pd.s3.amazonaws.com/styles/logo-thumbnail/s3/122010/untitled-1_275.png?itok=cpzEBOKS',
+                uri: item.avatarUrl,
               }}
             />
           </View>
@@ -152,6 +186,7 @@ class FeedScreen extends Component {
       </View>
     );
 
+
     const WhoIsIn = (
       <View style={styles.whoIsIn}>
         <TouchableOpacity>
@@ -183,20 +218,7 @@ class FeedScreen extends Component {
               <View style={{ flex: 1 }}>{Title}</View>
               <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                 {Datetime}
-                {!Array.isArray(item.prices_attributes) ||
-                !item.prices_attributes.length ? (
-                  <Text>Свободный вход</Text>
-                ) : (
-                  <Text>500-5000 тенге</Text>
-                  // <FlatList
-                  //   data={item.prices_attributes}
-                  //   renderItem={({ item }) => (
-                  //     <Text style={{ fontSize: 12 }}>
-                  //       {item.label}: {item.amount} тенге
-                  //     </Text>
-                  //   )}
-                  // />
-                )}
+                {this.renderPrices(item.prices)}
               </View>
             </View>
             <View style={styles.image}>
