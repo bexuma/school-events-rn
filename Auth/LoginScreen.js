@@ -42,24 +42,41 @@ class LoginScreen extends React.Component {
 
   state = {
     email: '',
-    password: '',
+    password: ''
   };
+
+  loadPreSignedImageUrl = async (user) => {
+    const username = user.username
+    const avatar = user.avatar
+
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+
+    const params = {Bucket: 'senbi', Key: `images/${username}/photos/${avatar}.jpg`};
+    
+    return new Promise ((resolve, reject) => {
+      s3.getSignedUrl('getObject', params, (err, url) => {
+        err ? reject(err) : resolve(url);
+      })
+    })
+  }
 
   handleSignInButton = async () => {
     try {
       const { email, password } = this.state;
       const result = await this.props.signInUserMutation({
-        variables: { email, password },
+        variables: { email, password }
       });
 
-      console.log("1", result.data.signInUser.token);
-
       await AsyncStorage.setItem('token', result.data.signInUser.token);
-      console.log("2", result.data.signInUser.token);
-      await AsyncStorage.setItem('user', JSON.stringify(result.data.signInUser.user));
-      console.log("3", result.data.signInUser.user);
+
+      let user = result.data.signInUser.user
+      user.avatarUrl = await this.loadPreSignedImageUrl(user)
+
+      await AsyncStorage.setItem('user', JSON.stringify(user));
 
       this.props.navigation.navigate('App');
+      
     } catch (e) {
       console.log(e);
       alert('Email or password does not match');

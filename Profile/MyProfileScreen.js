@@ -19,7 +19,6 @@ export default class MyProfileScreen extends Component {
     }
   });
 
-
   _signOutAsync = async () => {
     await AsyncStorage.clear();
     this.props.navigation.navigate('Auth')
@@ -40,28 +39,10 @@ export default class MyProfileScreen extends Component {
 
   componentDidMount = async () => {
     await AsyncStorage.getItem('user').then((user) => {
-      // console.log(user)
       this.setState({
         user: JSON.parse(user)
       });
-
     });
-
-    const avatar = this.state.user.avatar
-    const username = this.state.user.username
-
-    const AWS = require('aws-sdk');
-    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
-
-    var params = {Bucket: 'senbi', Key: `images/${username}/photos/${avatar}.jpg`};
-    await s3.getSignedUrl('getObject', params, (err, url) => {
-        console.log('Your pre-signed avatar URL is:', url);
-        this.setState({
-          imageUrl: url,
-          isLoading: false
-        })
-    });
-
   }
 
   eventEnding = param => {
@@ -96,26 +77,16 @@ export default class MyProfileScreen extends Component {
 
   render() {
 
-    if (this.state.isLoading) {
-      return <View></View>
-    }
-
-    const user = {
-      username: 'bexuma',
-      name: 'Бексултан Мырзатаев',
-      pic_url:
-        'https://instagram.fhel5-1.fna.fbcdn.net/vp/ffded36165db7720ce1e0f45def170d9/5C04FE2A/t51.2885-19/s320x320/33858515_2085790094782925_5169251405709443072_n.jpg',
-      user_events: ['Благотворительный Музыкальный Забег', 'yo'],
-      followers: ['lyailyam', 'assankhanov', 'abilkassov'],
-      followings: ['lyailyam', 'assankhanov'],
-    };
+    // if (this.state.isLoading) {
+    //   return <View></View>
+    // }
 
     const User_events = (
       <TouchableOpacity>
         <View style={styles.block}>
-          <Text style={styles.numbers}>{user.user_events.length}</Text>
+          <Text style={styles.numbers}>5</Text>
           <Text style={styles.nouns}>
-            {this.eventEnding(user.user_events.length % 10)}
+            {this.eventEnding(5 % 10)}
           </Text>
         </View>
       </TouchableOpacity>
@@ -124,9 +95,9 @@ export default class MyProfileScreen extends Component {
     const Followings = (
       <TouchableOpacity>
         <View style={styles.block}>
-          <Text style={styles.numbers}>{user.followings.length}</Text>
+          <Text style={styles.numbers}>6</Text>
           <Text style={styles.nouns}>
-            {this.followingsEnding(user.followings.length % 10)}
+            {this.followingsEnding(6 % 10)}
           </Text>
         </View>
       </TouchableOpacity>
@@ -135,9 +106,9 @@ export default class MyProfileScreen extends Component {
     const Followers = (
       <TouchableOpacity>
         <View style={styles.block}>
-          <Text style={styles.numbers}>{user.followers.length}</Text>
+          <Text style={styles.numbers}>7</Text>
           <Text style={styles.nouns}>
-            {this.followersEnding(user.followers.length % 10)}
+            {this.followersEnding(7 % 10)}
           </Text>
         </View>
       </TouchableOpacity>
@@ -160,7 +131,7 @@ export default class MyProfileScreen extends Component {
             }}
             resizeMode="contain"
             source={{
-              uri: this.state.imageUrl,
+              uri: this.state.user.avatarUrl,
             }}
           />
         </View>
