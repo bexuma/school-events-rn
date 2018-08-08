@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Apta",
-    "icon": ".logo.png",
+    "icon": "./logo.png",
     "version": "1.0.0",
     "slug": "apta-app",
     "sdkVersion": "27.0.0",
