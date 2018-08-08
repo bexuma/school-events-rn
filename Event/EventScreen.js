@@ -8,76 +8,19 @@ import { gql } from 'apollo-boost'
 require('moment/locale/ru.js');
 // Moment.locale('ru');
 
-const eventQuery = gql`
-  query ($eventId: ID!) {
-    event(eventId: $eventId) {
-      id
-      title
-      description
-      image_name
-      participantIds
-      hostedBy {
-        username
-      }
-    }
-  }
-`
-
-class EventScreen extends Component {
+export default class EventScreen extends Component {
   state = {
     imageUrl: '',
     isLoading: true
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.loading && !nextProps.error) {
-      this.setState({
-        event: JSON.stringify(nextProps.data.event),
-        isLoading: false,
-        numberOfParticipants: nextProps.data.event.participantIds.length
-      })
-    }
+  componentDidMount() {
+    this.setState({
+      numberOfParticipants: this.props.navigation.getParam('event', 'event is not found in props').participantIds.length
+    })
   }
 
-  // componentDidMount = async () => {
-  //   try {
-  //     console.log(this.props)
-  //     console.log(this.props.navigation.getParam('eventId', 'eventId is not found in props'))
-
-  //     // const eventId = navigation.getParam('event', 'image_name is not found in props').id
-  //     // const result = await this.props.eventQuery({
-  //     //  variables: {eventId}
-  //     // })
-
-  //     // this.setState({
-  //     //   event: JSON.stringify(result.data.event)
-  //     // })
-
-  //     // const { navigation } = this.props;
-  //     // const user = navigation.getParam('user', 'user is not found in props')
-  //     // const image_name = result.data.event.image_name
-  //     // const username = result.data.event.hostedBy.username
-
-  //     // const AWS = require('aws-sdk');
-  //     // const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
-
-  //     // var params = {Bucket: 'senbi', Key: `images/${username}/${image_name}.jpg`};
-  //     // await s3.getSignedUrl('getObject', params, (err, url) => {
-  //     //     console.log('Your pre-signed URL is:', url);
-  //     //     this.setState({
-  //     //       imageUrl: url,
-  //     //       numberOfParticipants: result.data.event.participantIds.length,
-  //     //       isLoading: false
-  //     //     })
-  //     // });
-  //   }
-  //   catch(e) {
-  //     console.log(e)
-  //   }
-  // }
-
   updateNumberOfParticipants = (numberOfParticipants) => {
-    // console.log(numberOfParticipants)
     this.setState({ numberOfParticipants })
   }
 
@@ -114,17 +57,13 @@ class EventScreen extends Component {
   }
 
   render() {
-
-    if (!this.state.event) {
-      return <ActivityIndicator size="large" color="#0000ff" />
-    } else {
-      const event = JSON.parse(this.state.event)
+    const event = this.props.navigation.getParam('event', 'event is not found in props')
 
       return (
         <ScrollView style={styles.container}>
           <Image
             style={{height: 200, marginBottom: 10}}
-            source={{uri: this.state.imageUrl}}
+            source={{uri: event.imageUrl}}
           />
 
           <View style={styles.common}>
@@ -158,7 +97,7 @@ class EventScreen extends Component {
           
         </ScrollView>
       )
-    }
+
   }
 }
 
@@ -203,9 +142,3 @@ const styles = StyleSheet.create({
   },
 
 });
-
-export default graphql(eventQuery, {
-  options: (props) => ({ variables: { eventId: props.navigation.getParam('eventId', 'eventId was not passed from FeedScreen') } })
-})( EventScreen );
-
-// export default graphql(eventQuery)( EventScreen );

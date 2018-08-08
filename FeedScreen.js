@@ -23,17 +23,20 @@ const allEventsQuery = gql`
       participantIds
       hostedBy {
         username
+        avatar
       }
+      site_url
+      starts_at
+      ends_at
+
     }
   }
 `
-// site_url
-// starts_at
-// ends_at
-// prices {
-//   label
-//   amount
-// }
+
+      // prices {
+      //   label
+      //   amount
+      // }
 
 class FeedScreen extends Component {
   static navigationOptions = {
@@ -58,7 +61,6 @@ class FeedScreen extends Component {
 
   componentDidMount() {
     AsyncStorage.getItem('user').then((user) => {
-      console.log(user)
       this.setState({
         isLoading: false,
         user: JSON.parse(user)
@@ -66,12 +68,37 @@ class FeedScreen extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
+  async componentWillReceiveProps(nextProps) {
     if (!nextProps.allEventsQuery.loading && !nextProps.allEventsQuery.error) {
+
+      const { allEvents } = nextProps.allEventsQuery;
+      const imageUrls = allEvents.map(event => this.loadImage(event));
+      
+
+      const result = await Promise.all(imageUrls)
+      const newEvents = allEvents.map((event, index) => ({ ...event, imageUrl: result[index]}))
+       
       this.setState({
-        events: nextProps.allEventsQuery.allEvents,
+        events: newEvents
       })
     }
+  }
+
+  loadImage = async (item) => {
+    const image_name = item.image_name
+    const username = item.hostedBy.username
+
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+
+    const params = {Bucket: 'senbi', Key: `images/${username}/${image_name}.jpg`};
+    
+    return new Promise ((resolve, reject) => {
+      s3.getSignedUrl('getObject', params, (err, url) => {
+        err ? reject(err) : resolve(url);
+      })
+    }) 
+
   }
 
   renderEvent = ({ item }) => {
@@ -143,7 +170,7 @@ class FeedScreen extends Component {
         activeOpacity={1}
         onPress={() => {
           navigation.navigate('Event', {
-            eventId: item.id,
+            event: item,
             user: this.state.user
           })
         }}>
@@ -174,7 +201,7 @@ class FeedScreen extends Component {
               <Image
                 style={{ height: 107.5, width: 107.5 }}
                 source={{
-                  uri: item.pic_url,
+                  uri: item.imageUrl,
                 }}
               />
             </View>
