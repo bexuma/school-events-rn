@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
-import { Text, View, Button, Image, AsyncStorage, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { Text, View, Button, Dimensions, Image, AsyncStorage, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import ActionButton from './components/ActionButton';
-import { Feather } from '@expo/vector-icons';
 import Moment from 'moment';
 import { graphql } from 'react-apollo'
 import { gql } from 'apollo-boost'
 require('moment/locale/ru.js');
+import {
+  Ionicons,
+  Octicons,
+  MaterialCommunityIcons,
+  Entypo,
+  FontAwesome,
+  Feather,
+  MaterialIcons,
+} from '@expo/vector-icons';
 // Moment.locale('ru');
 
 export default class EventScreen extends Component {
@@ -59,44 +67,96 @@ export default class EventScreen extends Component {
   render() {
     const event = this.props.navigation.getParam('event', 'event is not found in props')
 
-      return (
-        <ScrollView style={styles.container}>
-          <Image
-            style={{height: 200, marginBottom: 10}}
-            source={{uri: event.imageUrl}}
+    const Description = (
+      <View style={styles.description}>
+        <Text style={{ color: 'grey' }}>{event.description}</Text>
+      </View>
+    );
+
+    const Datetime = (
+      <View style={styles.iconInfo}>
+        <View style={styles.icon}>
+          <Ionicons name="md-calendar" size={24} color="#7E2FFF" />
+        </View>
+        <View style={styles.text}>
+          <Text>
+            {Moment(event.starts_at).format('Do MMMM YYYY года в HH:mm')}
+          </Text>
+        </View>
+      </View>
+    );
+
+    const Address = (
+      <View style={styles.iconInfo}>
+        <View style={styles.icon}>
+          <MaterialCommunityIcons
+            name="map-marker-outline"
+            size={24}
+            color="#7E2FFF"
           />
+        </View>
+        <View style={styles.text}>
+          <Text>{event.address}</Text>
+        </View>
+      </View>
+    );
 
-          <View style={styles.common}>
-            <ActionButton eventId={event.id} participantIds={event.participantIds} updateNumberOfParticipants={this.updateNumberOfParticipants} />
-          </View>
+    const Prices = (
+      <View style={styles.iconInfo}>
+        <View style={styles.icon}>
+          <MaterialCommunityIcons
+            name="cash-multiple"
+            size={24}
+            color="#7E2FFF"
+          />
+        </View>
+        <View style={styles.text}>
+          {!Array.isArray(event.prices) ||
+          !event.prices.length ? (
+            <Text>Свободный вход</Text>
+          ) : (
+            <FlatList
+              data={event.prices}
+              renderItem={({ item }) => (
+                <Text>
+                  {item.label ? `${item.label}: ` : ''}{item.amount} тенге
+                </Text>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          )}
+        </View>
+      </View>
+    );
 
-          {this.WhoIsIn(this.state.numberOfParticipants)}
-
-          <Text style={styles.title}>
+    return (
+      <ScrollView style={styles.container}>
+        <View style={styles.image}>
+          <Image
+            style={{
+              height: 200
+            }}
+            resizeMode="contain"
+            source={{
+              uri: event.imageUrl,
+            }}
+          />
+        </View>
+        <View style={styles.common}>
+          <Text style={{ fontWeight: '400', fontSize: 16 }}>
             {event.title}
           </Text>
-
-          <Text>
-            {event.description}
-          </Text>
-
-          <Text>
-            {event.site_url}
-          </Text>
-
-          <Text>
-            {Moment(event.starts_at).format('d MMM')}
-          </Text>
-
-          <FlatList
-            data={event.prices}
-            renderItem={
-              ({item}) => <Text>{item.label} {item.amount}</Text>
-            }
-          />
-          
-        </ScrollView>
-      )
+        </View>
+        <View style={styles.common}>
+          <ActionButton eventId={event.id} participantIds={event.participantIds} updateNumberOfParticipants={this.updateNumberOfParticipants} />
+        </View>
+        {this.WhoIsIn(this.state.numberOfParticipants)}
+        {Description}
+        {Datetime}
+        {Address}
+        {Prices}
+      </ScrollView>
+    )
 
   }
 }
@@ -107,10 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   image: {
-    flex: 3,
-    alignItems: 'center',
-    padding: 8,
-    justifyContent: 'center',
+    width: Dimensions.get('window').width
   },
   common: {
     flex: 1,
@@ -135,6 +192,6 @@ const styles = StyleSheet.create({
   text: {
     flex: 13,
     paddingRight: 16,
-  },
+  }
 
 });

@@ -28,15 +28,14 @@ const allEventsQuery = gql`
       site_url
       starts_at
       ends_at
+      prices {
+        label
+        amount
+      }
 
     }
   }
 `
-
-      // prices {
-      //   label
-      //   amount
-      // }
 
 class FeedScreen extends Component {
   static navigationOptions = {
@@ -318,39 +317,5 @@ const styles = StyleSheet.create({
   },
 });
 
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#ffffff'
-//   },
-//   title: {
-//     fontWeight: 'bold',
-//     fontSize: 15
-//   },
-//   recipe: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     height: 80,
-//     alignItems: 'center',
-//     paddingLeft: 20,
-//     paddingRight: 20,
-//     borderBottomColor: '#f4f4f4',
-//     borderBottomWidth: 1,
-//   },
-//   createPostButtonContainer: {
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   createPostButton: {
-//     backgroundColor: 'rgba(39,174,96,1)',
-//     color: 'white',
-//     textAlign: 'center',
-//     fontSize: 22,
-//     height: 60,
-//     width: 480,
-//     paddingTop: 18,
-//   }
-// })
 
 export default graphql(allEventsQuery, {name: 'allEventsQuery'})(FeedScreen)
