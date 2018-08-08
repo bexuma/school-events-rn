@@ -96,7 +96,7 @@ class LoginScreen extends React.Component {
           value={this.state.password}
         />
 
-        <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <View style={styles.centerAndPadding}>
           <TouchableOpacity
             style={styles.signInButton}
             onPress={() => {
@@ -106,7 +106,7 @@ class LoginScreen extends React.Component {
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          style={{ alignItems: 'center', paddingTop: 8 }}
+          style={styles.centerAndPadding}
           onPress={() => {
             this.props.navigation.navigate('Register');
           }}>
@@ -136,6 +136,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  centerAndPadding: {
+    alignItems: 'center', paddingTop: 8, 
+  }
 });
 
 export default graphql(signInUserMutation, { name: 'signInUserMutation' })(

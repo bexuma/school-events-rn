@@ -1,7 +1,20 @@
-import React from 'react'
-import { graphql } from 'react-apollo'
-import { gql } from 'apollo-boost'
-import { View, ScrollView, TouchableOpacity, FlatList, AsyncStorage, Image, Text, StyleSheet, KeyboardAvoidingView, TimePickerAndroid, DatePickerAndroid } from 'react-native'
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { gql } from 'apollo-boost';
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  AsyncStorage,
+  Image,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  TimePickerAndroid,
+  DatePickerAndroid,
+  Dimensions,
+} from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { ImagePicker } from 'expo';
 import Moment from 'moment';
@@ -14,6 +27,7 @@ const createEventMutation = gql`
     $description: String!,
     $image_name: String!,
     $site_url: String!,
+    $address: String!,
     $starts_at: DateTime!,
     $ends_at: DateTime!,
     $prices: [PriceInput]
@@ -23,6 +37,7 @@ const createEventMutation = gql`
       description: $description,
       image_name: $image_name,
       site_url: $site_url,
+      address: $address,
       starts_at: $starts_at,
       ends_at: $ends_at,
       prices: $prices
@@ -30,39 +45,29 @@ const createEventMutation = gql`
       id
     }
   }
-`
+`;
 
 class CreateEventScreen extends React.Component {
-  // static navigationOptions = {
-  //   title: 'Create new recipe',
-  //   headerStyle: {
-  //     backgroundColor: '#009688',
-  //   },
-  //   headerTintColor: '#fff',
-  //   headerTitleStyle: {
-  //     fontWeight: 'bold',
-  //   }
-  // };
-
   state = {
     title: '',
     description: '',
     site_url: '',
+    address: '',
     starts_at: '',
     ends_at: '',
     prices: [],
     label: '',
     amount: '',
     image: '',
-    isLoading: true
-  }
+    isLoading: true,
+  };
 
   componentDidMount() {
-    AsyncStorage.getItem('user').then((user) => {
+    AsyncStorage.getItem('user').then(user => {
       // console.log(user)
       this.setState({
         isLoading: false,
-        username: JSON.parse(user).username
+        username: JSON.parse(user).username,
       });
     });
   }
@@ -70,68 +75,78 @@ class CreateEventScreen extends React.Component {
   handleAddPriceForm = () => {
     const price = {
       label: this.state.label,
-      amount: parseInt(this.state.amount , 10 )
-    }
+      amount: parseInt(this.state.amount, 10),
+    };
 
     this.setState({
       prices: [...this.state.prices, price],
       label: '',
-      amount: ''
-    })
-  }
+      amount: '',
+    });
+  };
 
   getFormattedDateTime = (year, month, day, hour, minute) => {
-    let tMonth, tDay, tHour, tMinute
+    let tMonth, tDay, tHour, tMinute;
 
-    tMonth = (month <= 8) ? `0${month+1}` : `${month+1}`
-    tDay = (day <= 9) ? `0${day}` : `${day}`
-    tHour = (hour <= 9) ? `0${hour}` : `${hour}`
-    tMinute = (minute <= 9) ? `0${minute}` : `${minute}`
+    tMonth = month <= 8 ? `0${month + 1}` : `${month + 1}`;
+    tDay = day <= 9 ? `0${day}` : `${day}`;
+    tHour = hour <= 9 ? `0${hour}` : `${hour}`;
+    tMinute = minute <= 9 ? `0${minute}` : `${minute}`;
 
-    return `${year}-${tMonth}-${tDay}T${tHour}:${tMinute}:00Z`
-  }
+    return `${year}-${tMonth}-${tDay}T${tHour}:${tMinute}:00Z`;
+  };
 
   handleSelectStartsAtForm = async () => {
-    const currentDate = new Date()
-    
-    const {actionDatePicker, year, month, day} = await DatePickerAndroid.open({
-      minDate: currentDate,
-      date: currentDate,
-    });
+    const currentDate = new Date();
 
-    const {actionTimePicker, hour, minute} = await TimePickerAndroid.open({
+    const { actionDatePicker, year, month, day } = await DatePickerAndroid.open(
+      {
+        minDate: currentDate,
+        date: currentDate,
+      }
+    );
+
+    const { actionTimePicker, hour, minute } = await TimePickerAndroid.open({
       hour: 14,
       minute: 0,
       is24Hour: true,
     });
 
-    if ((actionDatePicker !== DatePickerAndroid.dismissedAction) && (actionTimePicker !== TimePickerAndroid.dismissedAction)) {
+    if (
+      actionDatePicker !== DatePickerAndroid.dismissedAction &&
+      actionTimePicker !== TimePickerAndroid.dismissedAction
+    ) {
       this.setState({
-        starts_at: this.getFormattedDateTime(year, month, day, hour, minute)
-      })
+        starts_at: this.getFormattedDateTime(year, month, day, hour, minute),
+      });
     }
-  }
+  };
 
   handleSelectEndsAtForm = async () => {
-    const starts_at = Moment(this.state.starts_at).toDate()
+    const starts_at = Moment(this.state.starts_at).toDate();
 
-    const {actionDatePicker, year, month, day} = await DatePickerAndroid.open({
-      minDate: starts_at,
-      date: starts_at,
-    });
+    const { actionDatePicker, year, month, day } = await DatePickerAndroid.open(
+      {
+        minDate: starts_at,
+        date: starts_at,
+      }
+    );
 
-    const {actionTimePicker, hour, minute} = await TimePickerAndroid.open({
-      hour: parseInt(Moment(this.state.starts_at).format("HH")), // GMT+0600 (East Kazakhstan Time)
-      minute: parseFloat(Moment(this.state.starts_at).format("mm")),
+    const { actionTimePicker, hour, minute } = await TimePickerAndroid.open({
+      hour: parseInt(Moment(this.state.starts_at).format('HH')), // GMT+0600 (East Kazakhstan Time)
+      minute: parseFloat(Moment(this.state.starts_at).format('mm')),
       is24Hour: true,
     });
 
-    if ((actionDatePicker !== DatePickerAndroid.dismissedAction) && (actionTimePicker !== TimePickerAndroid.dismissedAction)) {
+    if (
+      actionDatePicker !== DatePickerAndroid.dismissedAction &&
+      actionTimePicker !== TimePickerAndroid.dismissedAction
+    ) {
       this.setState({
-        ends_at: this.getFormattedDateTime(year, month, day, hour, minute)
-      })
+        ends_at: this.getFormattedDateTime(year, month, day, hour, minute),
+      });
     }
-  }
+  };
 
   pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -144,19 +159,27 @@ class CreateEventScreen extends React.Component {
     }
   };
 
-  _createEvent = async (imageUri) => {
+  _createEvent = async imageUri => {
     const AWS = require('aws-sdk');
-    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+    const s3 = new AWS.S3({
+      accessKeyId: 'AKIAJMHDUCEW2SQHAEJA',
+      secretAccessKey: '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',
+      region: 'ap-south-1',
+    });
 
-    const timestamp = '' + Date.now()
+    const timestamp = '' + Date.now();
 
-    const params = {Bucket: 'senbi', Key: `images/${this.state.username}/${timestamp}.jpg`, ContentType: 'image/jpeg'};
-    s3.getSignedUrl('putObject', params, function (err, url) {
+    const params = {
+      Bucket: 'senbi',
+      Key: `images/${this.state.username}/${timestamp}.jpg`,
+      ContentType: 'image/jpeg',
+    };
+    s3.getSignedUrl('putObject', params, function(err, url) {
       // console.log('Your generated pre-signed URL is', url);
 
       const request = new XMLHttpRequest();
       //request.open('PUT', url);
-      request.onreadystatechange = (e) => {  
+      request.onreadystatechange = e => {
         if (request.readyState !== 4) {
           return;
         }
@@ -169,163 +192,186 @@ class CreateEventScreen extends React.Component {
         }
 
         if (e) {
-          console.log(e)
+          console.log(e);
         }
       };
 
-      request.open('PUT', url)
-      request.setRequestHeader('Content-Type', 'image/jpeg')
-      request.send({ uri: imageUri, type: 'image/jpeg', name: `${timestamp}.jpg` })
+      request.open('PUT', url);
+      request.setRequestHeader('Content-Type', 'image/jpeg');
+      request.send({
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: `${timestamp}.jpg`,
+      });
     });
 
-
     try {
-      const {title, description, site_url, starts_at, ends_at, prices} = this.state
+      const {
+        title,
+        description,
+        address,
+        site_url,
+        starts_at,
+        ends_at,
+        prices,
+      } = this.state;
       await this.props.createEventMutation({
-       variables: {title, description, image_name: `${timestamp}`, site_url, starts_at, ends_at, prices}
-      })
+        variables: {
+          title,
+          description,
+          address,
+          image_name: `${timestamp}`,
+          site_url,
+          starts_at,
+          ends_at,
+          prices,
+        },
+      });
 
-      console.log("CREATED")
-   
+      console.log('CREATED');
     } catch (err) {
-      console.log('err', err)
+      console.log('err', err);
     }
-    
-  }
+  };
 
-  render () {
+  render() {
     // const { navigation } = this.props;
     // const allRecipesQuery = navigation.getParam('allRecipesQuery', '');
     // const authorId = navigation.getParam('authorId', '')
     let { image } = this.state;
+    const limit = 78;
 
     return (
-      <KeyboardAvoidingView
-        keyboardVerticalOffset={64}
-        behavior="padding" 
-        enabled>
-      <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
-        <TextInput
-          label='Title'
-          underlineColor="#159688"
-          placeholder='Recipe title...'
-          onChangeText={title => this.setState({ title })}
-          value={this.state.title}
-        />
+      <KeyboardAvoidingView behavior="padding" enabled>
+        <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
+          <TextInput
+            theme={{ colors: { primary: '#26A4FF' } }}
+            underlineColor="#26A4FF"
+            label="Название мероприятия"
+            placeholder="Введите название мероприятия..."
+            onChangeText={title => this.setState({ title })}
+            value={this.state.title}
+            maxLength={limit}
+            multiline={true}
+          />
 
-        <TextInput
-          label='Description'
-          multiline={true}
-          underlineColor="#159688"
-          placeholder='Type a description...'
-          onChangeText={description => this.setState({ description })}
-          value={this.state.description}
-        />
+          <TextInput
+            theme={{ colors: { primary: '#26A4FF' } }}
+            underlineColor="#26A4FF"
+            label="Описание мероприятия"
+            multiline={true}
+            placeholder="Добавьте описание..."
+            onChangeText={description => this.setState({ description })}
+            value={this.state.description}
+          />
 
-        <TextInput
-          label='Site URL'
-          underlineColor="#159688"
-          placeholder='Event site'
-          onChangeText={site_url => this.setState({ site_url })}
-          value={this.state.site_url}
-        />
+          <TextInput
+            theme={{ colors: { primary: '#26A4FF' } }}
+            underlineColor="#26A4FF"
+            label="Адрес мероприятия"
+            placeholder="Введите адрес"
+            onChangeText={address => this.setState({ address })}
+            value={this.state.address}
+          />
 
-        <Text style={[styles.header, {paddingTop: 2}]}>Prices</Text>
+          <TextInput
+            theme={{ colors: { primary: '#26A4FF' } }}
+            underlineColor="#26A4FF"
+            label="Ссылка на сайт мероприятия"
+            placeholder="Добавьте UPL-ссылку на сайт"
+            onChangeText={site_url => this.setState({ site_url })}
+            value={this.state.site_url}
+          />
 
-        <FlatList
-          data={this.state.prices}
-          renderItem={({item}) => <View style={styles.item}><Text style={styles.itemText}>{item.label}</Text><Text>{item.amount}</Text></View>}
-        />
+          <Text style={[styles.header, { paddingTop: 2 }]}>Цены</Text>
 
-        <TextInput
-          label='Label'
-          underlineColor="#159688"
-          onChangeText={label => this.setState({ label })}
-          value={this.state.label}
-        />
+          <FlatList
+            data={this.state.prices}
+            renderItem={({ item }) => (
+              <View style={styles.item}>
+                <Text style={styles.itemText}>{item.label}: </Text>
+                <Text>{item.amount}</Text>
+              </View>
+            )}
+          />
 
-        <TextInput
-          label='Amount'
-          underlineColor="#159688"
-          onChangeText={amount => this.setState({ amount })}
-          value={this.state.amount}
-        />
+          <TextInput
+            theme={{ colors: { primary: '#26A4FF' } }}
+            underlineColor="#26A4FF"
+            label="Лэйбл"
+            placeholder="Добавьте лэйбл"
+            onChangeText={label => this.setState({ label })}
+            value={this.state.label}
+          />
 
-        <TouchableOpacity
-          onPress={this.handleAddPriceForm}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>
-            Add Price
-          </Text>
+          <TextInput
+            theme={{ colors: { primary: '#26A4FF' } }}
+            underlineColor="#26A4FF"
+            label="Цена"
+            placeholder="Добавьте цену для этой категории"
+            onChangeText={amount => this.setState({ amount })}
+            value={this.state.amount}
+            keyboardType='numeric'
+          />
 
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.handleAddPriceForm}
+            style={styles.button}>
+            <Text style={styles.buttonText}>Добавить цену</Text>
+          </TouchableOpacity>
+<View style={styles.dateTime}>
+          <TouchableOpacity
+            onPress={this.handleSelectStartsAtForm}
+            style={styles.button}>
+            <Text style={styles.buttonText}>Выбрать дату и время начала</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={this.handleSelectStartsAtForm}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>
-            Start Date
-          </Text>
+          <TouchableOpacity
+            onPress={this.handleSelectEndsAtForm}
+            style={styles.button}>
+            <Text style={styles.buttonText}>Выбрать дату и время конца</Text>
+          </TouchableOpacity>
+</View>
+          {image ? (
+            <Image
+              source={{ uri: image.uri }}
+              style={{ height: 200, marginTop: 10 }}
+            />
+          ) : null}
 
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={this.handleSelectEndsAtForm}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>
-            End Date
-          </Text>
-
-        </TouchableOpacity>
-
-        {image
-            ? (<Image source={{ uri: image.uri }} style={{ height: 200, marginTop: 10 }} />)
-            : null }
-        
-        <TouchableOpacity
-          style={[styles.button, styles.addImagebutton]}
-          onPress={this.pickImage}
-        >
-          <Text style={styles.buttonText}>
-            Choose an image
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={() => {
-            this._createEvent(image.uri);
-            this.props.navigation.goBack()
-          }}
-        >
-          <Text style={styles.submitButtonText}>
-            Create Event
-          </Text>
-        </TouchableOpacity>
-
-      </ScrollView>
+          <TouchableOpacity
+            style={[styles.button, styles.addImagebutton]}
+            onPress={this.pickImage}>
+            <Text style={styles.buttonText}>Choose an image</Text>
+          </TouchableOpacity>
+<View style={styles.centerAndPadding}>
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={() => {
+              this._createEvent(image.uri);
+              this.props.navigation.goBack();
+            }}>
+            <Text style={styles.submitButtonText}>Создать мероприятие</Text>
+          </TouchableOpacity>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
-    )
+    );
   }
-
 }
-
-
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    paddingLeft: 16,
-    paddingRight: 16
+    padding: 16,
+    paddingTop: 0,
+    marginTop: 24,
   },
   header: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: "#757575",
-    marginTop: 10
+    color: '#757575',
+    marginTop: 10,
   },
   item: {
     flex: 1,
@@ -338,34 +384,41 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   itemText: {
-    fontSize: 15
+    fontSize: 15,
   },
   button: {
     alignItems: 'center',
     backgroundColor: '#26A69A',
-    padding: 10
+    padding: 10,
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: 'bold'
+    color: '#fff',
+    fontWeight: 'bold',
   },
   addImagebutton: {
     marginTop: 10,
     backgroundColor: '#009688',
+  }, 
+  dateTime:{
+    flexDirection: 'row',
+  },
+  centerAndPadding: {
+    alignItems: 'center', paddingTop: 8, 
   },
   submitButton: {
+    height: 32,
+    width: Dimensions.get('window').width - 32,
     alignItems: 'center',
-    backgroundColor: '#00796B',
-    padding: 10,
-    marginTop: 10,
-    marginBottom: 16
+    justifyContent: 'center',
+    borderRadius: 16,
+    backgroundColor: '#26A4FF',
   },
   submitButtonText: {
-    color: "#fff",
+    color: '#fff',
     fontWeight: 'bold',
-    fontSize: 18
   },
-  
-})
+});
 
-export default graphql(createEventMutation, {name: 'createEventMutation'})(CreateEventScreen)
+export default graphql(createEventMutation, { name: 'createEventMutation' })(
+  CreateEventScreen
+);

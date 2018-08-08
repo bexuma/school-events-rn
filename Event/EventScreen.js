@@ -1,9 +1,21 @@
 import React, { Component } from 'react';
-import { Text, View, Button, Dimensions, Image, AsyncStorage, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import {
+  Text,
+  View,
+  Button,
+  Dimensions,
+  Image,
+  AsyncStorage,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+} from 'react-native';
 import ActionButton from './components/ActionButton';
 import Moment from 'moment';
-import { graphql } from 'react-apollo'
-import { gql } from 'apollo-boost'
+import { graphql } from 'react-apollo';
+import { gql } from 'apollo-boost';
 require('moment/locale/ru.js');
 import {
   Ionicons,
@@ -19,20 +31,23 @@ import {
 export default class EventScreen extends Component {
   state = {
     imageUrl: '',
-    isLoading: true
-  }
+    isLoading: true,
+  };
 
   componentDidMount() {
     this.setState({
-      numberOfParticipants: this.props.navigation.getParam('event', 'event is not found in props').participantIds.length
-    })
+      numberOfParticipants: this.props.navigation.getParam(
+        'event',
+        'event is not found in props'
+      ).participantIds.length,
+    });
   }
 
-  updateNumberOfParticipants = (numberOfParticipants) => {
-    this.setState({ numberOfParticipants })
-  }
+  updateNumberOfParticipants = numberOfParticipants => {
+    this.setState({ numberOfParticipants });
+  };
 
-  formatNumberOfParticipants = (numberOfParticipants) => {
+  formatNumberOfParticipants = numberOfParticipants => {
     if (numberOfParticipants % 10 === 1) {
       return 'участник';
     } else if (numberOfParticipants % 10 < 5 && numberOfParticipants % 10 > 1) {
@@ -40,9 +55,9 @@ export default class EventScreen extends Component {
     } else {
       return 'участников';
     }
-  }
+  };
 
-  WhoIsIn = (numberOfParticipants) => {
+  WhoIsIn = numberOfParticipants => {
     return (
       <View style={styles.iconInfo}>
         <View style={styles.icon}>
@@ -51,7 +66,8 @@ export default class EventScreen extends Component {
         <View style={styles.text}>
           <TouchableOpacity>
             <Text>
-              <Text style={{ fontWeight: 'bold' }}>{numberOfParticipants}</Text> {this.formatNumberOfParticipants(numberOfParticipants)}
+              <Text style={{ fontWeight: 'bold' }}>{numberOfParticipants}</Text>{' '}
+              {this.formatNumberOfParticipants(numberOfParticipants)}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity>
@@ -61,11 +77,14 @@ export default class EventScreen extends Component {
           </TouchableOpacity>
         </View>
       </View>
-    )
-  }
+    );
+  };
 
   render() {
-    const event = this.props.navigation.getParam('event', 'event is not found in props')
+    const event = this.props.navigation.getParam(
+      'event',
+      'event is not found in props'
+    );
 
     const Description = (
       <View style={styles.description}>
@@ -111,15 +130,15 @@ export default class EventScreen extends Component {
           />
         </View>
         <View style={styles.text}>
-          {!Array.isArray(event.prices) ||
-          !event.prices.length ? (
+          {!Array.isArray(event.prices) || !event.prices.length ? (
             <Text>Свободный вход</Text>
           ) : (
             <FlatList
               data={event.prices}
               renderItem={({ item }) => (
                 <Text>
-                  {item.label ? `${item.label}: ` : ''}{item.amount} тенге
+                  {item.label ? `${item.label}: ` : ''}
+                  {item.amount} тенге
                 </Text>
               )}
               keyExtractor={(item, index) => index.toString()}
@@ -134,7 +153,7 @@ export default class EventScreen extends Component {
         <View style={styles.image}>
           <Image
             style={{
-              height: 200
+              height: 200,
             }}
             resizeMode="contain"
             source={{
@@ -143,12 +162,14 @@ export default class EventScreen extends Component {
           />
         </View>
         <View style={styles.common}>
-          <Text style={{ fontWeight: '400', fontSize: 16 }}>
-            {event.title}
-          </Text>
+          <Text style={{ fontWeight: '400', fontSize: 16 }}>{event.title}</Text>
         </View>
         <View style={styles.common}>
-          <ActionButton eventId={event.id} participantIds={event.participantIds} updateNumberOfParticipants={this.updateNumberOfParticipants} />
+          <ActionButton
+            eventId={event.id}
+            participantIds={event.participantIds}
+            updateNumberOfParticipants={this.updateNumberOfParticipants}
+          />
         </View>
         {this.WhoIsIn(this.state.numberOfParticipants)}
         {Description}
@@ -156,8 +177,7 @@ export default class EventScreen extends Component {
         {Address}
         {Prices}
       </ScrollView>
-    )
-
+    );
   }
 }
 
@@ -167,7 +187,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   image: {
-    width: Dimensions.get('window').width
+    width: Dimensions.get('window').width,
   },
   common: {
     flex: 1,
@@ -192,6 +212,5 @@ const styles = StyleSheet.create({
   text: {
     flex: 13,
     paddingRight: 16,
-  }
-
+  },
 });
