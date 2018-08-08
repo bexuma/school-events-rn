@@ -28,6 +28,9 @@ const allEventsQuery = gql`
       site_url
       starts_at
       ends_at
+      address
+      latitude
+      longitude
       prices {
         label
         amount
