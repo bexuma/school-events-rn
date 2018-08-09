@@ -26,7 +26,7 @@ export default class AuthLoadingScreen extends React.Component {
   // Render any loading content that you like here
   render() {
     return (
-      <ImageBackground source='../logo.png' style={{width: '100%', height: '100%'}}/>
+      <ImageBackground source={require('../logo.png')} style={{width: '100%', height: '100%'}}/>
     );
   }
 }

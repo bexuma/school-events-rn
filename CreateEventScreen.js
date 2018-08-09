@@ -99,8 +99,6 @@ class CreateEventScreen extends React.Component {
         amount: '',
       };
     });
-
-    console.log(this.state)
   };
 
   openAddPriceForm = () => {
@@ -237,8 +235,12 @@ class CreateEventScreen extends React.Component {
         site_url,
         starts_at,
         ends_at,
-        prices,
       } = this.state;
+
+      const prices = this.state.prices.map ((price, index) => ({ label: price.label, amount: price.amount}))
+
+      console.log(prices)
+
       await this.props.createEventMutation({
         variables: {
           title,

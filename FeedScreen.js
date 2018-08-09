@@ -35,6 +35,12 @@ const allEventsQuery = gql`
         label
         amount
       }
+      reviews {
+        message
+        user {
+          name
+        }
+      }
     }
   }
 `
