@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, AsyncStorage } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, AsyncStorage, Alert } from 'react-native';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
@@ -19,17 +19,26 @@ export default class SettingsScreen extends Component {
     title: 'Настройки',
   };
 
-  _signOutAsync = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate('Auth')
-  };
+
+  exit = () => {Alert.alert(
+    'Выйти',
+    'Вы уверены, что хотите выйти из данного аккаунта?',
+    [
+      { text: 'Да', onPress: async () => {
+        await AsyncStorage.clear();
+        this.props.navigation.navigate('Auth')
+      } },
+      { text: 'Отмена', onPress: () => console.log('не уходим') },
+    ],
+    { cancelable: false }
+  )}
 
   goToEditProfile = () => {
     return this.props.navigation.navigate('EditProfile');
   };
 
   goToEditAccount = () => {
-    return this.props.navigation.navigate('EditProfile');
+    return this.props.navigation.navigate('EditAccount');
   };
 
   render() {
@@ -41,7 +50,10 @@ export default class SettingsScreen extends Component {
         <TouchableOpacity style={styles.item} onPress={this.goToEditAccount}>
           <Text style={styles.label}>Аккаунт</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.item} onPress={this._signOutAsync}>
+        <TouchableOpacity
+  style={styles.item}
+  onPress={this.exit}
+>
           <Text style={[styles.label, { color: '#26A4FF' }]}>Выйти</Text>
         </TouchableOpacity>
       </View>

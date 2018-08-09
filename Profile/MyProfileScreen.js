@@ -31,9 +31,15 @@ export default class MyProfileScreen extends Component {
     history: true,
   }
 
-  changeScreen = () => {
+  goToHistory = () => {
     this.setState(previousState => {
-      return { history: !previousState.history };
+      return { history: true };
+    });
+  };
+
+  goToPlans = () => {
+    this.setState(previousState => {
+      return { history: false };
     });
   };
 
@@ -144,7 +150,7 @@ export default class MyProfileScreen extends Component {
           </View>
           <FollowButton />
         </View>
-          <Navigator changeScreen={this.changeScreen}/>
+          <Navigator goToHistory={this.goToHistory} goToPlans={this.goToPlans}/>
           <View style={{flex: 1}}>
           <Text>
           {this.state.history ? 'History' : 'Plans'}

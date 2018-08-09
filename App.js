@@ -13,6 +13,8 @@ import LoginScreen from './Auth/LoginScreen';
 import RegisterScreen from './Auth/RegisterScreen';
 import AuthLoadingScreen from './Auth/AuthLoadingScreen';
 import EventScreen from './Event/EventScreen';
+import EditProfileScreen from './Profile/EditProfileScreen'
+import EditAccountScreen from './Profile/EditAccountScreen'
 
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
@@ -57,8 +59,8 @@ const CreateEventNavigator = createStackNavigator({
 const MyProfileNavigator = createStackNavigator({
   MyProfile: MyProfileScreen,
   Settings: SettingsScreen,
-  // EditProfile: EditProfileScreen,
-  // EditAccount: EditAccountScreen,
+  EditProfile: EditProfileScreen,
+  EditAccount: EditAccountScreen,
 });
 
 
@@ -73,7 +75,9 @@ const TabNavigator = createBottomTabNavigator(
     tabBarOptions: {
       showLabel: false,
       activeTintColor: '#26A4FF',
+      activeBackgroundColor: 'white',
       inactiveTintColor: 'black',
+      inactiveBackgroundColor: 'white',
     },
     navigationOptions: ({ navigation }) => ({
       tabBarIcon: ({ focused, tintColor }) => {
