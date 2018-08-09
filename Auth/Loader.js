@@ -14,6 +14,10 @@ const Loader = props => {
     ...attributes
   } = props;
 
+  message = () => {
+    return props.text === "login" ? "Авторизируюсь..." : "Регистрируюсь..."
+  }
+
   return (
     <Modal
       transparent={true}
@@ -25,7 +29,7 @@ const Loader = props => {
           <ActivityIndicator
             animating={loading}
             size="large"  />
-            <Text style={styles.text}>Авторизация...</Text>
+            <Text style={styles.text}>{this.message()}</Text>
         </View>
       </View>
     </Modal>

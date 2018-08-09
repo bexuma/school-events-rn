@@ -17,6 +17,8 @@ import {
 import { TextInput } from 'react-native-paper';
 import { ImagePicker } from 'expo';
 
+import Loader from './Loader';
+
 import { Entypo } from '@expo/vector-icons';
 
 const signUpUserMutation = gql`
@@ -274,6 +276,12 @@ class SignupScreen extends React.Component {
               У вас уже есть аккаунт? Войти
             </Text>
           </TouchableOpacity>
+
+          <Loader
+            loading={this.state.isLoading}
+            text="register"
+             />
+
       </KeyboardAvoidingView>
     );
   }

@@ -136,7 +136,9 @@ class LoginScreen extends React.Component {
           <Text>Вы еще не регистрировались? Создать профиль</Text>
         </TouchableOpacity>
         <Loader
-          loading={this.state.isLoading} />
+          loading={this.state.isLoading}
+          text="login"
+        />
       </View>
     );
   }
