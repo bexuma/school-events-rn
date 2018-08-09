@@ -153,7 +153,7 @@ export default class EventScreen extends Component {
         <View style={styles.image}>
           <Image
             style={{
-              height: 200,
+              height: Math.round(Dimensions.get('window').width * 9 / 16),
             }}
             resizeMode="contain"
             source={{
