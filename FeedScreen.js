@@ -35,7 +35,6 @@ const allEventsQuery = gql`
         label
         amount
       }
-
     }
   }
 `
@@ -139,7 +138,6 @@ class FeedScreen extends Component {
 
   renderEvent = ({ item }) => {
     const { navigation } = this.props;
-    console.log(item.avatarUrl)
 
     const Top = (
       <View style={styles.top}>
@@ -147,12 +145,15 @@ class FeedScreen extends Component {
           <View style={styles.justifyCenter}>
             <Image
               style={{ height: 32, width: 32 }}
+              borderRadius={16}
               source={{
                 uri: item.avatarUrl,
               }}
             />
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={()=>alert("HEHEH")}
+          >
             <View style={styles.hostName}>
               <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.hostedBy.username}</Text>
             </View>
