@@ -222,7 +222,7 @@ class EventScreen extends Component {
 
         <View style={styles.text}>
           {!Array.isArray(event.reviews) || !event.reviews.length ? (
-            <Text>Свободный вход</Text>
+            <Text>Отзывы отсутствуют. Напишите о мероприятии.</Text>
           ) : (
             <FlatList
               data={event.reviews}
