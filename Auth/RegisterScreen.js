@@ -46,7 +46,7 @@ const signInUserMutation = gql`
 
 class SignupScreen extends React.Component {
   static navigationOptions = {
-    title: 'Sign up',
+    title: 'Регистрация',
     headerLeft: null,
     headerStyle: {
       backgroundColor: '#26A4FF',
@@ -63,9 +63,10 @@ class SignupScreen extends React.Component {
     username: '',
     password: '',
     image: '',
+    isLoading: false
   };
 
-  handleSignUpButton = async imageUri => {
+  uploadAvatarToS3 = async (imageUri, timestamp) => {
     const AWS = require('aws-sdk');
     const s3 = new AWS.S3({
       accessKeyId: 'AKIAJMHDUCEW2SQHAEJA',
@@ -73,14 +74,13 @@ class SignupScreen extends React.Component {
       region: 'ap-south-1',
     });
 
-    const timestamp = '' + Date.now();
     const params = {
       Bucket: 'senbi',
       Key: `images/${this.state.username}/photos/${timestamp}.jpg`,
       ContentType: 'image/jpeg',
     };
 
-    s3.getSignedUrl('putObject', params, function(err, url) {
+    await s3.getSignedUrl('putObject', params, function(err, url) {
       const request = new XMLHttpRequest();
       //request.open('PUT', url);
       request.onreadystatechange = e => {
@@ -108,31 +108,61 @@ class SignupScreen extends React.Component {
         name: `${timestamp}.jpg`,
       });
     });
+  }
+
+  handleSignUpButton = async imageUri => {
+    this.setState({isLoading: true})
 
     try {
       const { name, username, email, password } = this.state;
+      const timestamp = '' + Date.now();
 
       await this.props.signUpUserMutation({
         variables: { name, username, email, password, avatar: `${timestamp}` },
       });
 
+      this.uploadAvatarToS3(imageUri, timestamp)
+
       const result = await this.props.signInUserMutation({
         variables: { email, password },
       });
 
-      await AsyncStorage.setItem('token', result.data.signInUser.token);
       await AsyncStorage.setItem(
-        'user',
-        JSON.stringify(result.data.signInUser.user)
+        'token', result.data.signInUser.token
       );
 
-      this.props.navigation.navigate('Main', {
-        user: result.data.signInUser.user,
-      });
+      let user = result.data.signInUser.user
+      user.avatarUrl = await this.loadPreSignedImageUrl(user)
+
+      await AsyncStorage.setItem(
+        'user', JSON.stringify(user)
+      );
+
+      this.setState({isLoading: false})
+
+      this.props.navigation.navigate('App');
+
     } catch (e) {
       console.log('EROOR', e);
     }
   };
+
+  loadPreSignedImageUrl = async (user) => {
+
+    const username = user.username
+    const avatar = user.avatar
+
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+
+    const params = {Bucket: 'senbi', Key: `images/${username}/photos/${avatar}.jpg`};
+    
+    return new Promise ((resolve, reject) => {
+      s3.getSignedUrl('getObject', params, (err, url) => {
+        err ? reject(err) : resolve(url);
+      })
+    })
+  }
 
   pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -241,7 +271,7 @@ class SignupScreen extends React.Component {
               this.props.navigation.navigate('Login');
             }}>
             <Text>
-              Already have an account? Sign In
+              У вас уже есть аккаунт? Войти
             </Text>
           </TouchableOpacity>
       </KeyboardAvoidingView>
