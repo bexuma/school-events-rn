@@ -139,7 +139,7 @@ class FeedScreen extends Component {
 
   renderEvent = ({ item }) => {
     const { navigation } = this.props;
-    // console.log(item.avatarUrl)
+    console.log(item.avatarUrl)
 
     const Top = (
       <View style={styles.top}>
@@ -178,11 +178,11 @@ class FeedScreen extends Component {
 
     const Tags = (
       <View style={styles.tags}>
-        <TouchableOpacity>
+        {/*<TouchableOpacity>
           <Text style={{ color: '#26A4FF' }}>
             #Марафон #Благотворительность #Спорт #Бег
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity>*/}
       </View>
     );
 

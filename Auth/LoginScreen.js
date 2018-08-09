@@ -9,6 +9,9 @@ import {
   StyleSheet,
   AsyncStorage,
   Dimensions,
+  Modal,
+  TouchableHighlight,
+  Alert
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
@@ -42,10 +45,12 @@ class LoginScreen extends React.Component {
 
   state = {
     email: '',
-    password: ''
+    password: '',
+    isLoading: false
   };
 
   loadPreSignedImageUrl = async (user) => {
+
     const username = user.username
     const avatar = user.avatar
 
@@ -62,6 +67,7 @@ class LoginScreen extends React.Component {
   }
 
   handleSignInButton = async () => {
+    this.setState({isLoading: true})
     try {
       const { email, password } = this.state;
       const result = await this.props.signInUserMutation({
@@ -75,25 +81,41 @@ class LoginScreen extends React.Component {
 
       await AsyncStorage.setItem('user', JSON.stringify(user));
 
+      this.setState({isLoading: false})
+
       this.props.navigation.navigate('App');
       
     } catch (e) {
+      this.setState({isLoading: false})
       console.log(e);
       alert('Email or password does not match');
     }
   };
 
   render() {
-    if (this.props.signInUserMutation.loading) {
-      return (
-        <View style={{ flex: 1, padding: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+
 
     return (
       <View style={styles.container}>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.isLoading}
+          height={100}
+          width={300}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+
+          <View style={{marginTop: 22}}>
+            <View>
+              <Text>Hello World!</Text>
+
+            </View>
+          </View>
+
+          </Modal>
+
         <TextInput
           theme={{ colors: { primary: '#26A4FF' } }}
           label="Электронная почта"
