@@ -14,6 +14,7 @@ import {
   TimePickerAndroid,
   DatePickerAndroid,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { ImagePicker } from 'expo';
@@ -88,6 +89,7 @@ class CreateEventScreen extends React.Component {
     const price = {
       label: this.state.label,
       amount: parseInt(this.state.amount, 10),
+      id: new Date().getTime(),
     };
     this.setState(previousState => {
       return {
@@ -97,11 +99,19 @@ class CreateEventScreen extends React.Component {
         amount: '',
       };
     });
+
+    console.log(this.state)
   };
 
   openAddPriceForm = () => {
     this.setState(previousState => {
       return { addPriceFormIsOpened: !previousState.addPriceFormIsOpened };
+    });
+  };
+
+  removeItemFromList = itemToRemove => {
+    this.setState({
+      prices: this.state.prices.filter(item => item.id !== itemToRemove),
     });
   };
 
@@ -179,6 +189,30 @@ class CreateEventScreen extends React.Component {
     }
   };
 
+  checkIfRequiredFieldsAreNotFilled = () =>
+    this.state.starts_at === '' ||
+    this.state.starts_at.length === 0 ||
+    this.state.ends_at === '' ||
+    this.state.ends_at.length === 0 ||
+    this.state.title === '' ||
+    this.state.title.length === 0;
+
+  setInitialState = () => {
+    this.setState({
+      title: '',
+      description: '',
+      site_url: '',
+      address: '',
+      starts_at: '',
+      ends_at: '',
+      prices: [],
+      label: '',
+      amount: '',
+      image: '',
+      isLoading: true,
+      addPriceFormIsOpened: false,
+    });
+  };
   _createEvent = async imageUri => {
     const AWS = require('aws-sdk');
     const s3 = new AWS.S3({
@@ -253,6 +287,8 @@ class CreateEventScreen extends React.Component {
     } catch (err) {
       console.log('err', err);
     }
+    this.props.navigation.navigate('Feed');
+    this.setInitialState();
   };
 
   render() {
@@ -263,10 +299,10 @@ class CreateEventScreen extends React.Component {
     const limit = 78;
 
     return (
-      <KeyboardAvoidingView 
-      keyboardVerticalOffset={100}
-      behavior="padding" 
-      enabled>
+      <KeyboardAvoidingView
+        keyboardVerticalOffset={80}
+        behavior="padding"
+        enabled>
         <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
           {image ? (
             <Image source={{ uri: image.uri }} style={{ height: 200 }} />
@@ -321,17 +357,17 @@ class CreateEventScreen extends React.Component {
           this.state.starts_at.length === 0 ? null : (
             <View style={styles.dateTime}>
               <TouchableOpacity onPress={this.handleSelectEndsAtForm}>
-              {this.state.ends_at === '' ||
-              this.state.ends_at.length === 0 ? (
-                <Text style={styles.buttonText}>
-                  Выберите дату и время конца
-                </Text>
-              ) : (
-                <Text style={styles.buttonText}>
-                  <Text style={{ color: 'grey' }}>Конец: </Text>
-                  {Moment(this.state.ends_at).format('Do MMMM YYYY HH:mm')}
-                </Text>
-              )}
+                {this.state.ends_at === '' ||
+                this.state.ends_at.length === 0 ? (
+                  <Text style={styles.buttonText}>
+                    Выберите дату и время конца
+                  </Text>
+                ) : (
+                  <Text style={styles.buttonText}>
+                    <Text style={{ color: 'grey' }}>Конец: </Text>
+                    {Moment(this.state.ends_at).format('Do MMMM YYYY HH:mm')}
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           )}
@@ -345,19 +381,10 @@ class CreateEventScreen extends React.Component {
             value={this.state.address}
           />
 
-          <TextInput
-            theme={{ colors: { primary: '#26A4FF' } }}
-            underlineColor="#26A4FF"
-            label="Ссылка на сайт мероприятия"
-            placeholder="Добавьте URL-ссылку на сайт"
-            onChangeText={site_url => this.setState({ site_url })}
-            value={this.state.site_url}
-          />
-
-          <Text
+                    <Text
             style={[
               styles.header,
-              this.state.addPriceFormIsOpened ? { paddingBottom: 0 } : null,
+              this.state.addPriceFormIsOpened && this.state.prices.length !== 0 ? { paddingBottom: 0 } : null,
             ]}>
             Цены
           </Text>
@@ -366,9 +393,22 @@ class CreateEventScreen extends React.Component {
             data={this.state.prices}
             renderItem={({ item }) => (
               <View style={styles.item}>
-                <Text style={{ fontSize: 15 }}>
-                  {item.label}: {item.amount} тенге
-                </Text>
+                <View style={styles.itemText}>
+                  <Text style={{ fontSize: 15 }}>
+                    {item.label}: {item.amount} тенге
+                  </Text>
+                </View>
+                <View style={styles.itemRemoveButton}>
+                  <TouchableOpacity
+                    onPress={()=>this.removeItemFromList(item.id)}
+                    style={styles.addPrice}>
+                    <Ionicons
+                      name="ios-remove-circle"
+                      size={32}
+                      color="red"
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           />
@@ -416,7 +456,7 @@ class CreateEventScreen extends React.Component {
                     onPress={this.handleAddPriceForm}
                     style={styles.addPrice}>
                     <Ionicons
-                      name="ios-add-circle-outline"
+                      name="ios-add-circle"
                       size={32}
                       color="#26A4FF"
                     />
@@ -426,12 +466,22 @@ class CreateEventScreen extends React.Component {
             </View>
           ) : null}
 
+          <TextInput
+            theme={{ colors: { primary: '#26A4FF' } }}
+            underlineColor="#26A4FF"
+            label="Ссылка на сайт мероприятия"
+            placeholder="Добавьте URL-ссылку на сайт"
+            onChangeText={site_url => this.setState({ site_url })}
+            value={this.state.site_url}
+          />
+
           <View style={styles.centerAndPadding}>
             <TouchableOpacity
               style={styles.submitButton}
               onPress={() => {
-                this._createEvent(image.uri);
-                this.props.navigation.goBack();
+                this.checkIfRequiredFieldsAreNotFilled()
+                  ? Alert.alert('Вы не заполнили все обязательные поля')
+                  : this._createEvent(image.uri);
               }}>
               <Text style={styles.submitButtonText}>Создать мероприятие</Text>
             </TouchableOpacity>
@@ -461,6 +511,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 4,
     justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  itemText: {
+    flex: 4,
+  },
+  itemRemoveButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
   buttonText: {
     color: '#26A4FF',

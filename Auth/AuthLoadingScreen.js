@@ -5,6 +5,7 @@ import {
   StatusBar,
   StyleSheet,
   View,
+  ImageBackground,
 } from 'react-native';
 
 export default class AuthLoadingScreen extends React.Component {
@@ -25,9 +26,7 @@ export default class AuthLoadingScreen extends React.Component {
   // Render any loading content that you like here
   render() {
     return (
-      <View>
-        <ActivityIndicator />
-      </View>
+      <ImageBackground source='../logo.png' style={{width: '100%', height: '100%'}}/>
     );
   }
 }

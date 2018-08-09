@@ -35,18 +35,25 @@ export default class Navigator extends Component {
     history: true,
   };
 
-  handleOnPress = () => {
+  goToHistory = () => {
     this.setState(previousState => {
-      return { history: !previousState.history };
+      return { history: true };
     });
-    this.props.changeScreen()
+    this.props.goToHistory()
+  };
+
+  goToPlans = () => {
+    this.setState(previousState => {
+      return { history: false };
+    });
+    this.props.goToPlans()
   };
 
   render() {
     return (
       <View style={styles.navigator}>
 
-      <TouchableOpacity onPress={this.handleOnPress}>
+      <TouchableOpacity onPress={this.goToHistory}>
         <View
           style={[
             styles.general,
@@ -59,7 +66,7 @@ export default class Navigator extends Component {
             ]}>ИСТОРИЯ</Text>
         </View>
       </TouchableOpacity>      
-      <TouchableOpacity onPress={this.handleOnPress}>
+      <TouchableOpacity onPress={this.goToPlans}>
         <View
           style={[
             styles.general,

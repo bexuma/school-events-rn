@@ -23,11 +23,11 @@ export default class HeaderRight extends Component {
   render() {
     return (
       <View style={styles.headerRight}>
-        <View style={styles.headerRightIcons}>
+        {/* <View style={styles.headerRightIcons}>
           <TouchableOpacity>
             <Ionicons name="ios-bookmark" size={28} color="#fff" />
           </TouchableOpacity>
-        </View>
+        </View> */}
         <View style={styles.headerRightIcons}>
           <TouchableOpacity onPress={this.handleOnPress}>
             <Ionicons name="ios-settings" size={28} color="#fff" />

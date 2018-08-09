@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
+import Loader from './Loader';
+
 const signInUserMutation = gql`
   mutation ($email: String!, $password: String!) {
     signInUser(email: {email: $email, password: $password}) {
@@ -97,23 +99,6 @@ class LoginScreen extends React.Component {
 
     return (
       <View style={styles.container}>
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={this.state.isLoading}
-         
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-          }}>
-
-          <View style={{marginTop: 22,  height: 100, width: 300}}>
-            <View>
-              <Text>Hello World!</Text>
-
-            </View>
-          </View>
-
-          </Modal>
 
         <TextInput
           theme={{ colors: { primary: '#26A4FF' } }}
@@ -151,6 +136,8 @@ class LoginScreen extends React.Component {
           }}>
           <Text>Do not have an account? Sign Up</Text>
         </TouchableOpacity>
+        <Loader
+          loading={this.state.isLoading} />
       </View>
     );
   }
