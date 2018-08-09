@@ -12,6 +12,7 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
+import {TextInput} from 'react-native-paper';
 import ActionButton from './components/ActionButton';
 import Moment from 'moment';
 import { graphql } from 'react-apollo';
@@ -28,10 +29,26 @@ import {
 } from '@expo/vector-icons';
 // Moment.locale('ru');
 
-export default class EventScreen extends Component {
+const createReviewMutation = gql`
+  mutation(
+    $message: String!
+    $eventId: ID!
+  ) {
+    createReview(
+      message: $message,
+      eventId: $eventId
+    ) {
+      id
+      message
+    }
+  }
+`;
+
+class EventScreen extends Component {
   state = {
     imageUrl: '',
     isLoading: true,
+    message: ''
   };
 
   componentDidMount() {
@@ -79,6 +96,28 @@ export default class EventScreen extends Component {
       </View>
     );
   };
+
+  handleAddReviewForm = async (eventId) => {
+    try {
+      const { message } = this.state;
+
+      const result = await this.props.createReviewMutation({
+        variables: {
+          message,
+          eventId
+        }
+      })
+
+      this.setState({
+        message: ''
+      })
+
+      console.log(result)
+
+    } catch (err) {
+      console.log('err', err);
+    }
+  }
 
   render() {
     const event = this.props.navigation.getParam(
@@ -148,6 +187,8 @@ export default class EventScreen extends Component {
       </View>
     );
 
+    
+
     return (
       <ScrollView style={styles.container}>
         <View style={styles.image}>
@@ -176,6 +217,40 @@ export default class EventScreen extends Component {
         {Datetime}
         {Address}
         {Prices}
+
+        <Text>Отзывы</Text>
+
+        <View style={styles.text}>
+          {!Array.isArray(event.reviews) || !event.reviews.length ? (
+            <Text>Свободный вход</Text>
+          ) : (
+            <FlatList
+              data={event.reviews}
+              renderItem={({ item }) => (
+                <Text>
+                  {item.message} by {item.user.name}
+                </Text>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          )}
+        </View>
+
+        <TextInput
+          theme={{ colors: { primary: '#26A4FF' } }}
+          underlineColor="#26A4FF"
+          label="Отзыв"
+          multiline={true}
+          placeholder="Добавьте отзыв..."
+          onChangeText={message => this.setState({ message })}
+          value={this.state.message}
+        />
+
+        <Button
+          title="Send"
+          onPress={() => this.handleAddReviewForm(event.id)}
+        />
+
       </ScrollView>
     );
   }
@@ -214,3 +289,7 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
 });
+
+export default graphql(createReviewMutation, { name: 'createReviewMutation' })(
+  EventScreen
+);
