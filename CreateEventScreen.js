@@ -284,7 +284,7 @@ class CreateEventScreen extends React.Component {
           <TextInput
             theme={{ colors: { primary: '#26A4FF' } }}
             underlineColor="#26A4FF"
-            label="Название мероприятия"
+            label="Название мероприятия*"
             placeholder="Введите название мероприятия..."
             onChangeText={title => this.setState({ title })}
             value={this.state.title}
@@ -301,7 +301,7 @@ class CreateEventScreen extends React.Component {
             onChangeText={description => this.setState({ description })}
             value={this.state.description}
           />
-          <Text style={styles.header}>Дата и время</Text>
+          <Text style={styles.header}>Дата и время*</Text>
           <View style={styles.dateTime}>
             <TouchableOpacity onPress={this.handleSelectStartsAtForm}>
               {this.state.starts_at === '' ||
