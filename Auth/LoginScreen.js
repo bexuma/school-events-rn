@@ -101,13 +101,12 @@ class LoginScreen extends React.Component {
           animationType="slide"
           transparent={false}
           visible={this.state.isLoading}
-          height={100}
-          width={300}
+         
           onRequestClose={() => {
             Alert.alert('Modal has been closed.');
           }}>
 
-          <View style={{marginTop: 22}}>
+          <View style={{marginTop: 22,  height: 100, width: 300}}>
             <View>
               <Text>Hello World!</Text>
 
