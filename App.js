@@ -15,6 +15,7 @@ import AuthLoadingScreen from './Auth/AuthLoadingScreen';
 import EventScreen from './Event/EventScreen';
 import EditProfileScreen from './Profile/EditProfileScreen'
 import EditAccountScreen from './Profile/EditAccountScreen'
+import ProfileScreen from './UsersProfile/ProfileScreen'
 
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
@@ -50,6 +51,7 @@ const client = new ApolloClient({
 const FeedNavigator = createStackNavigator({
   Feed: FeedScreen,
   Event: EventScreen,
+  Profile: ProfileScreen,
 });
 
 const CreateEventNavigator = createStackNavigator({
@@ -76,7 +78,7 @@ const TabNavigator = createBottomTabNavigator(
       showLabel: false,
       activeTintColor: '#26A4FF',
       activeBackgroundColor: 'white',
-      inactiveTintColor: 'black',
+      inactiveTintColor: '#0E334E',
       inactiveBackgroundColor: 'white',
     },
     navigationOptions: ({ navigation }) => ({

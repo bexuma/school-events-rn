@@ -25,6 +25,7 @@ const allEventsQuery = gql`
       image_name
       participantIds
       hostedBy {
+        id
         username
         avatar
       }
@@ -41,6 +42,7 @@ const allEventsQuery = gql`
       reviews {
         message
         user {
+          id
           username
         }
       }
@@ -52,9 +54,9 @@ class FeedScreen extends Component {
   static navigationOptions = {
     title: 'Apta',
     headerStyle: {
-      backgroundColor: '#26A4FF',
+      backgroundColor: '#fff',
     },
-    headerTintColor: '#fff',
+    headerTintColor: '#0E334E',
     headerTitleStyle: {
       fontWeight: 'normal',
     },
@@ -98,6 +100,7 @@ class FeedScreen extends Component {
       });
     }
   }
+
 
   loadAvatar = item => {
     const avatar = item.hostedBy.avatar;
@@ -165,7 +168,7 @@ class FeedScreen extends Component {
     const screenWidth = Dimensions.get('window').width;
     
     const Host = (
-          <TouchableOpacity onPress={() => alert('HEHEH')}>
+          <TouchableOpacity onPress={() => {navigation.navigate('Profile')}}>
               <Text style={{ fontWeight: 'bold' }}>
                 {item.hostedBy.username}
               </Text>
@@ -218,7 +221,7 @@ class FeedScreen extends Component {
           }}
         />
         <View style={styles.info}>
-          <View style={styles.profilePic}>
+          <TouchableOpacity style={styles.profilePic} onPress={() => {navigation.navigate('Profile')}}>
             <Image
               style={{ height: screenWidth / 7.5, width: screenWidth / 7.5 }}
               borderRadius={screenWidth / 15}
@@ -226,7 +229,7 @@ class FeedScreen extends Component {
                 uri: item.avatarUrl,
               }}
             />
-          </View>
+          </TouchableOpacity>
           <View style={styles.text}>
             {Title}
             {Host}
@@ -305,7 +308,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
   },
   kebab: {
-    flex: 1,
+    flex: 1.5,
     alignItems: 'flex-end',
   },
   whoIsIn: {

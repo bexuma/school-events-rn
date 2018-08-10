@@ -397,7 +397,8 @@ class CreateEventScreen extends React.Component {
               <View style={styles.item}>
                 <View style={styles.itemText}>
                   <Text style={{ fontSize: 15 }}>
-                    {item.label}: {item.amount} тенге
+                    {item.label ? `${item.label}: ` : ''}
+                    {item.amount} тенге
                   </Text>
                 </View>
                 <View style={styles.itemRemoveButton}>

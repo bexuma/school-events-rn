@@ -13,7 +13,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
 } from 'react-native';
-import {TextInput} from 'react-native-paper';
+import { TextInput } from 'react-native-paper';
 import ActionButton from './components/ActionButton';
 import Moment from 'moment';
 import { graphql } from 'react-apollo';
@@ -27,7 +27,7 @@ import {
   FontAwesome,
   Feather,
   MaterialIcons,
-  SimpleLineIcons
+  SimpleLineIcons,
 } from '@expo/vector-icons';
 // Moment.locale('ru');
 
@@ -47,10 +47,16 @@ const createReviewMutation = gql`
 `;
 
 class EventScreen extends Component {
-
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.event.title}`,
-    headerRight: <SimpleLineIcons style={{paddingRight: 12,}} name="options-vertical" size={20} color="#fff" />,
+    headerRight: (
+      <SimpleLineIcons
+        style={{ paddingRight: 12 }}
+        name="options-vertical"
+        size={20}
+        color="#fff"
+      />
+    ),
     headerStyle: {
       backgroundColor: '#26A4FF',
     },
@@ -63,7 +69,7 @@ class EventScreen extends Component {
   state = {
     imageUrl: '',
     isLoading: true,
-    message: ''
+    message: '',
   };
 
   componentDidMount() {
@@ -112,29 +118,29 @@ class EventScreen extends Component {
     );
   };
 
-  handleAddReviewForm = async (eventId) => {
+  handleAddReviewForm = async eventId => {
     try {
       const { message } = this.state;
 
       const result = await this.props.createReviewMutation({
         variables: {
           message,
-          eventId
-        }
-      })
+          eventId,
+        },
+      });
 
       this.setState({
-        message: ''
-      })
+        message: '',
+      });
 
-      console.log(result)
-
+      console.log(result);
     } catch (err) {
       console.log('err', err);
     }
-  }
+  };
 
   render() {
+
     const event = this.props.navigation.getParam(
       'event',
       'event is not found in props'
@@ -202,77 +208,86 @@ class EventScreen extends Component {
       </View>
     );
 
-    
-
-    return (            
-    <KeyboardAvoidingView
-      keyboardVerticalOffset={80}
-      behavior="padding"
-      enabled
-      style={styles.container}>
-      <ScrollView>
-        <View style={styles.image}>
-          <Image
-            style={{
-              height: Math.round(Dimensions.get('window').width * 9 / 16),
-            }}
-            resizeMode="contain"
-            source={{
-              uri: event.imageUrl,
-            }}
-          />
-        </View>
-        <View style={styles.common}>
-          <Text style={{ fontWeight: '400', fontSize: 16 }}>{event.title}</Text>
-        </View>
-        <View style={styles.common}>
-          <ActionButton
-            eventId={event.id}
-            participantIds={event.participantIds}
-            updateNumberOfParticipants={this.updateNumberOfParticipants}
-          />
-        </View>
-        {this.WhoIsIn(this.state.numberOfParticipants)}
-        {Description}
-        {Datetime}
-        {Address}
-        {Prices}
-
-        <View style={styles.feedback}>
-        <Text style={styles.header}>Отзывы</Text>
-
-          {!Array.isArray(event.reviews) || !event.reviews.length ? (
-            <Text style={{color: 'grey'}}>Отзывы отсутствуют. Напишите о мероприятии.</Text>
-          ) : (
-            <FlatList
-              data={event.reviews}
-              renderItem={({ item }) => (
-                <Text>
-                  <Text style={{fontWeight: 'bold'}}>{item.user.username} </Text>{item.message}
-                </Text>
-              )}
-              keyExtractor={(item, index) => index.toString()}
+    return (
+      <KeyboardAvoidingView
+        keyboardVerticalOffset={80}
+        behavior="padding"
+        enabled
+        style={styles.container}>
+        <ScrollView>
+          <View style={styles.image}>
+            <Image
+              style={{
+                height: Math.round((Dimensions.get('window').width * 9) / 16),
+              }}
+              resizeMode="contain"
+              source={{
+                uri: event.imageUrl,
+              }}
             />
-          )}
+          </View>
+          <View style={styles.common}>
+            <Text style={{ fontWeight: '400', fontSize: 16 }}>
+              {event.title}
+            </Text>
+          </View>
+          <View style={styles.common}>
+            <ActionButton
+              eventId={event.id}
+              participantIds={event.participantIds}
+              updateNumberOfParticipants={this.updateNumberOfParticipants}
+            />
+          </View>
+          {this.WhoIsIn(this.state.numberOfParticipants)}
+          {Description}
+          {Datetime}
+          {Address}
+          {Prices}
 
+          <View style={styles.feedback}>
+            <Text style={styles.header}>Отзывы</Text>
 
-        <TextInput
-          theme={{ colors: { primary: '#26A4FF' } }}
-          underlineColor="#26A4FF"
-          label="Отзыв"
-          multiline={true}
-          placeholder="Добавьте отзыв..."
-          onChangeText={message => this.setState({ message })}
-          value={this.state.message}
-        />
-        </View> 
+            {!Array.isArray(event.reviews) || !event.reviews.length ? (
+              <Text style={{ color: 'grey' }}>
+                Отзывы отсутствуют. Напишите о мероприятии.
+              </Text>
+            ) : (
+              <FlatList
+                data={event.reviews}
+                renderItem={({ item }) => (
+                  <View style={{ flexDirection: 'row' }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        this.props.navigation.navigate('Profile');
+                      }}>
+                      <Text style={{ fontWeight: 'bold' }}>
+                        {item.user.username}
+                      </Text>
+                    </TouchableOpacity>
+                    <Text> {item.message}</Text>
+                  </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            )}
+
+            <TextInput
+              theme={{ colors: { primary: '#26A4FF' } }}
+              underlineColor="#26A4FF"
+              label="Отзыв"
+              multiline={true}
+              placeholder="Добавьте отзыв..."
+              onChangeText={message => this.setState({ message })}
+              value={this.state.message}
+            />
+          </View>
           <TouchableOpacity
             style={styles.submitButton}
             onPress={() => this.handleAddReviewForm(event.id)}>
             <Text style={styles.submitButtonText}>Оставить отзыв</Text>
           </TouchableOpacity>
-        </ScrollView>  
-        </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     );
   }
 }

@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import { Text, View, Button, TouchableOpacity, StyleSheet, ScrollView, Image, AsyncStorage } from 'react-native';
-import HeaderRight from './HeaderRight';
+import FollowButton from './FollowButton';
 import Navigator from './Navigator';
+import {
+  SimpleLineIcons
+} from '@expo/vector-icons';
+import { graphql } from 'react-apollo';
+import { gql } from 'apollo-boost';
 
 
-export default class MyProfileScreen extends Component {
+export default class ProfileScreen extends Component {
   
-  static navigationOptions = ({ navigation }) => ({
-    title: 'bexuma',
-    headerRight: <HeaderRight navigation={navigation}/>,
+  static navigationOptions = {
+    title: 'lyailyam',
+    headerRight: <SimpleLineIcons style={{paddingRight: 12,}} name="options-vertical" size={20} color="#fff" />,
     headerStyle: {
       backgroundColor: '#26A4FF',
     },
@@ -16,7 +21,8 @@ export default class MyProfileScreen extends Component {
     headerTitleStyle: {
       fontWeight: 'normal',
     }
-  });
+  };
+
 
   state = {
     user: '',
@@ -36,13 +42,6 @@ export default class MyProfileScreen extends Component {
     });
   };
 
-  componentDidMount = async () => {
-    await AsyncStorage.getItem('user').then((user) => {
-      this.setState({
-        user: JSON.parse(user)
-      });
-    });
-  }
 
   eventEnding = param => {
     if (param === 1) {
@@ -115,7 +114,7 @@ export default class MyProfileScreen extends Component {
 
     const Name = (
       <View style={styles.common}>
-        <Text style={ styles.name }>{this.state.name}</Text>
+        <Text style={ styles.name }>Ляйля Мусаханова</Text>
       </View>
     );
 
@@ -130,15 +129,18 @@ export default class MyProfileScreen extends Component {
             }}
             resizeMode="contain"
             source={{
-              uri: this.state.user.avatarUrl,
+              uri: "https://instagram.fala3-1.fna.fbcdn.net/vp/845318ab3eda9697f11c0758eda892e6/5C0A9DDB/t51.2885-19/s320x320/13285489_548929271960880_2016198285_a.jpg",
             }}
           />
         </View>
         {Name}
         <View style={styles.violetContainer}>
+          <View style={styles.infoBlocks}>
             {User_events}
             {Followings}
             {Followers}
+          </View>
+          <FollowButton />
         </View>
           <Navigator goToHistory={this.goToHistory} goToPlans={this.goToPlans}/>
           <View style={{flex: 1}}>
@@ -177,8 +179,12 @@ const styles = StyleSheet.create({
     paddingLeft: 54,
     paddingRight: 54,
     paddingBottom: 12,
+  },
+  infoBlocks: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 8,
     flexDirection: 'row',
   },
   block: {
@@ -195,3 +201,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+
