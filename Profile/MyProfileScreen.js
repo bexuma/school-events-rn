@@ -10,9 +10,9 @@ export default class MyProfileScreen extends Component {
     title: 'bexuma',
     headerRight: <HeaderRight navigation={navigation}/>,
     headerStyle: {
-      backgroundColor: '#26A4FF',
+      backgroundColor: '#fff',
     },
-    headerTintColor: '#fff',
+    headerTintColor: '#0E334E',
     headerTitleStyle: {
       fontWeight: 'normal',
     }

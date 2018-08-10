@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
 export default class EditAccountScreen extends Component {
   static navigationOptions = {
     title: 'Аккаунт',
+    headerTintColor: '#0E334E',
   };
 
   render() {

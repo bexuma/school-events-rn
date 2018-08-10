@@ -37,9 +37,9 @@ class LoginScreen extends React.Component {
     title: 'Вход',
     headerLeft: null,
     headerStyle: {
-      backgroundColor: '#26A4FF',
-    },
-    headerTintColor: '#fff',
+      backgroundColor: '#fff',
+    },    
+    headerTintColor: '#0E334E',
     headerTitleStyle: {
       fontWeight: 'normal',
     },

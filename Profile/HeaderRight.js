@@ -30,7 +30,7 @@ export default class HeaderRight extends Component {
         </View> */}
         <View style={styles.headerRightIcons}>
           <TouchableOpacity onPress={this.handleOnPress}>
-            <Ionicons name="ios-settings" size={28} color="#fff" />
+            <Ionicons name="ios-settings" size={28} color="#0E334E" />
           </TouchableOpacity>
         </View>
       </View>

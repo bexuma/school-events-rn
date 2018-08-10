@@ -54,13 +54,13 @@ class EventScreen extends Component {
         style={{ paddingRight: 12 }}
         name="options-vertical"
         size={20}
-        color="#fff"
+        color="#0E334E"
       />
     ),
     headerStyle: {
-      backgroundColor: '#26A4FF',
+      backgroundColor: '#fff',
     },
-    headerTintColor: '#fff',
+    headerTintColor: '#0E334E',
     headerTitleStyle: {
       fontWeight: 'normal',
     },

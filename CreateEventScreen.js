@@ -53,9 +53,9 @@ class CreateEventScreen extends React.Component {
   static navigationOptions = {
     title: 'Новое мероприятие',
     headerStyle: {
-      backgroundColor: '#26A4FF',
+      backgroundColor: '#fff',
     },
-    headerTintColor: '#fff',
+    headerTintColor: '#0E334E',
     headerTitleStyle: {
       fontWeight: 'normal',
     },

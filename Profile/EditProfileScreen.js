@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
 export default class EditProfileScreen extends Component {
   static navigationOptions = {
     title: 'Профиль',
+    headerTintColor: '#0E334E',
   };
 
   render() {

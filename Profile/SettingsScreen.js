@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
 export default class SettingsScreen extends Component {
   static navigationOptions = {
     title: 'Настройки',
+    headerTintColor: '#0E334E',
   };
 
 

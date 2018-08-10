@@ -26,11 +26,11 @@ class ProfileScreen extends Component {
   
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.username,
-    headerRight: <SimpleLineIcons style={{paddingRight: 12,}} name="options-vertical" size={20} color="#fff" />,
+    headerRight: <SimpleLineIcons style={{paddingRight: 12,}} name="options-vertical" size={20} color="#0E334E" />,
     headerStyle: {
-      backgroundColor: '#26A4FF',
+      backgroundColor: '#fff',
     },
-    headerTintColor: '#fff',
+    headerTintColor: '#0E334E',
     headerTitleStyle: {
       fontWeight: 'normal',
     }
