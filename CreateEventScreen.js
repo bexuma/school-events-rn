@@ -288,15 +288,10 @@ class CreateEventScreen extends React.Component {
       });
     } catch (err) {
       console.log('err', err);
-    }
-    this.props.navigation.navigate('Feed');
-    this.setInitialState();
+    }  
   };
 
   render() {
-    // const { navigation } = this.props;
-    // const allRecipesQuery = navigation.getParam('allRecipesQuery', '');
-    // const authorId = navigation.getParam('authorId', '')
     let { image } = this.state;
     const limit = 78;
 
@@ -482,9 +477,13 @@ class CreateEventScreen extends React.Component {
             <TouchableOpacity
               style={styles.submitButton}
               onPress={() => {
-                this.checkIfRequiredFieldsAreNotFilled()
-                  ? Alert.alert('Вы не заполнили все обязательные поля')
-                  : this._createEvent(image.uri);
+                if (this.checkIfRequiredFieldsAreNotFilled()) {
+                  Alert.alert('Вы не заполнили все обязательные поля')
+                } else {
+                  this._createEvent(image.uri)
+                  this.setInitialState();
+                  this.props.navigation.navigate('Feed');
+                }
               }}>
               <Text style={styles.submitButtonText}>Создать мероприятие</Text>
             </TouchableOpacity>
