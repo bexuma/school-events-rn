@@ -14,6 +14,7 @@ const findProfileQuery = gql`
       id
       name
       username
+      avatar
       participatingEvents {
         title
       }
@@ -35,11 +36,45 @@ class ProfileScreen extends Component {
     }
   })
 
-
   state = {
     user: '',
     isLoading: true,
     history: true,
+  }
+
+  loadAvatar = user => {
+    const avatar = user.avatar;
+    const username = user.username;
+
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({
+      accessKeyId: 'AKIAJMHDUCEW2SQHAEJA',
+      secretAccessKey: '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',
+      region: 'ap-south-1',
+    });
+
+    const params = {
+      Bucket: 'senbi',
+      Key: `images/${username}/photos/${avatar}.jpg`,
+    };
+
+    return new Promise((resolve, reject) => {
+      s3.getSignedUrl('getObject', params, (err, url) => {
+        err ? reject(err) : resolve(url);
+      });
+    });
+  };
+
+  async componentWillReceiveProps(nextProps) {
+    if (!nextProps.data.loading && !nextProps.data.error) {
+      
+      const hh = this.loadAvatar(nextProps.data.findUser).then((url) => {
+        this.setState({
+          avatarUrl: url,
+          isLoading: false
+        });
+      });      
+    }
   }
 
   goToHistory = () => {
@@ -86,7 +121,7 @@ class ProfileScreen extends Component {
   };
 
   render() {
-    if (this.props.data.loading) {
+    if (this.state.isLoading) {
       return <View></View>
     }
 
@@ -142,7 +177,7 @@ class ProfileScreen extends Component {
             }}
             resizeMode="contain"
             source={{
-              uri: "https://instagram.fala3-1.fna.fbcdn.net/vp/845318ab3eda9697f11c0758eda892e6/5C0A9DDB/t51.2885-19/s320x320/13285489_548929271960880_2016198285_a.jpg",
+              uri: this.state.avatarUrl
             }}
           />
         </View>

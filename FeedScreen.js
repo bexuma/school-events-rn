@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     flex: 3,
   },
   text: {
-    flex: 17,
+    flex: 14,
     paddingLeft: 16,
   },
   kebab: {
