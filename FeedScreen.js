@@ -152,7 +152,7 @@ class FeedScreen extends Component {
     } else if (prices.length > 1) {
       const amounts = prices.map(price => price.amount);
       amounts.sort((a, b) => a - b);
-      text = `\u20B8${amounts[0]}-\u20B8${amounts[amounts.length - 1]}`;
+      text = `\u20B8${amounts[0]} - \u20B8${amounts[amounts.length - 1]}`;
     } else {
       text = 'Свободный вход';
     }
@@ -176,7 +176,7 @@ class FeedScreen extends Component {
 
     const Datetime = (
       <Text style={{ color: 'grey', fontSize: 14 }}>
-        {Moment(item.starts_at).format('Do MMMM YYYY HH:mm')}
+        {Moment(item.starts_at).format('Do MMMM, HH:mm')}
       </Text>
     );
 
