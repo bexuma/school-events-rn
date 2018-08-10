@@ -18,6 +18,7 @@ export default class MyProfileScreen extends Component {
     }
   });
 
+
   state = {
     user: '',
     isLoading: true,
@@ -117,7 +118,7 @@ export default class MyProfileScreen extends Component {
 
     const Name = (
       <View style={styles.common}>
-        <Text style={ styles.name }>{this.state.name}</Text>
+        <Text style={ styles.name }>{this.state.user.name}</Text>
       </View>
     );
 
