@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {TextInput} from 'react-native-paper';
 import ActionButton from './components/ActionButton';
@@ -26,6 +27,7 @@ import {
   FontAwesome,
   Feather,
   MaterialIcons,
+  SimpleLineIcons
 } from '@expo/vector-icons';
 // Moment.locale('ru');
 
@@ -45,6 +47,19 @@ const createReviewMutation = gql`
 `;
 
 class EventScreen extends Component {
+
+  static navigationOptions = ({ navigation }) => ({
+    title: `${navigation.state.params.event.title}`,
+    headerRight: <SimpleLineIcons style={{paddingRight: 12,}} name="options-vertical" size={20} color="#fff" />,
+    headerStyle: {
+      backgroundColor: '#26A4FF',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'normal',
+    },
+  });
+
   state = {
     imageUrl: '',
     isLoading: true,
@@ -78,7 +93,7 @@ class EventScreen extends Component {
     return (
       <View style={styles.iconInfo}>
         <View style={styles.icon}>
-          <Feather name="users" size={24} color="#7E2FFF" />
+          <Feather name="users" size={24} color="#26A4FF" />
         </View>
         <View style={styles.text}>
           <TouchableOpacity>
@@ -134,7 +149,7 @@ class EventScreen extends Component {
     const Datetime = (
       <View style={styles.iconInfo}>
         <View style={styles.icon}>
-          <Ionicons name="md-calendar" size={24} color="#7E2FFF" />
+          <Ionicons name="md-calendar" size={24} color="#26A4FF" />
         </View>
         <View style={styles.text}>
           <Text>
@@ -150,7 +165,7 @@ class EventScreen extends Component {
           <MaterialCommunityIcons
             name="map-marker-outline"
             size={24}
-            color="#7E2FFF"
+            color="#26A4FF"
           />
         </View>
         <View style={styles.text}>
@@ -165,7 +180,7 @@ class EventScreen extends Component {
           <MaterialCommunityIcons
             name="cash-multiple"
             size={24}
-            color="#7E2FFF"
+            color="#26A4FF"
           />
         </View>
         <View style={styles.text}>
@@ -189,8 +204,13 @@ class EventScreen extends Component {
 
     
 
-    return (
-      <ScrollView style={styles.container}>
+    return (            
+    <KeyboardAvoidingView
+      keyboardVerticalOffset={80}
+      behavior="padding"
+      enabled
+      style={styles.container}>
+      <ScrollView>
         <View style={styles.image}>
           <Image
             style={{
@@ -218,11 +238,11 @@ class EventScreen extends Component {
         {Address}
         {Prices}
 
-        <Text>Отзывы</Text>
+        <View style={styles.feedback}>
+        <Text style={styles.header}>Отзывы</Text>
 
-        <View style={styles.text}>
           {!Array.isArray(event.reviews) || !event.reviews.length ? (
-            <Text>Отзывы отсутствуют. Напишите о мероприятии.</Text>
+            <Text style={{color: 'grey'}}>Отзывы отсутствуют. Напишите о мероприятии.</Text>
           ) : (
             <FlatList
               data={event.reviews}
@@ -234,7 +254,7 @@ class EventScreen extends Component {
               keyExtractor={(item, index) => index.toString()}
             />
           )}
-        </View>
+
 
         <TextInput
           theme={{ colors: { primary: '#26A4FF' } }}
@@ -245,13 +265,14 @@ class EventScreen extends Component {
           onChangeText={message => this.setState({ message })}
           value={this.state.message}
         />
-
-        <Button
-          title="Send"
-          onPress={() => this.handleAddReviewForm(event.id)}
-        />
-
-      </ScrollView>
+        </View> 
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={() => this.handleAddReviewForm(event.id)}>
+            <Text style={styles.submitButtonText}>Оставить отзыв</Text>
+          </TouchableOpacity>
+        </ScrollView>  
+        </KeyboardAvoidingView>
     );
   }
 }
@@ -287,6 +308,29 @@ const styles = StyleSheet.create({
   text: {
     flex: 13,
     paddingRight: 16,
+  },
+  feedback: {
+    padding: 12,
+  },
+  header: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#0E334E',
+    paddingBottom: 12,
+  },
+  submitButton: {
+    height: 32,
+    width: Dimensions.get('window').width - 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    backgroundColor: '#26A4FF',
+    marginBottom: 32,
+    alignSelf: 'center',
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontWeight: '400',
   },
 });
 

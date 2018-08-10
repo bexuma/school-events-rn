@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet, AsyncStorage, Dimensions } from 'react-native';
 import { graphql, compose } from 'react-apollo'
 import { gql } from 'apollo-boost'
 
@@ -114,24 +114,24 @@ class ActionButton extends Component {
 const styles = StyleSheet.create({
   general: {
     height: 32,
-    width: 328,
+    width: Dimensions.get('window').width - 32,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#7E2FFF',
+    borderColor: '#26A4FF',
   },
   unpressed: {
     backgroundColor: 'white',
   },
   pressed: {
-    backgroundColor: '#7E2FFF',
+    backgroundColor: '#26A4FF',
   },
   text: {
-    fontWeight: '500',
+    fontWeight: '400',
   },
   unpressedText: {
-    color: '#7E2FFF',
+    color: '#26A4FF',
   },
   pressedText: {
     color: 'white',
