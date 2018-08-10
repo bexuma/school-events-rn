@@ -34,7 +34,7 @@ const signInUserMutation = gql`
 
 class LoginScreen extends React.Component {
   static navigationOptions = {
-    title: 'Login',
+    title: 'Вход',
     headerLeft: null,
     headerStyle: {
       backgroundColor: '#26A4FF',
@@ -96,7 +96,6 @@ class LoginScreen extends React.Component {
 
   render() {
 
-
     return (
       <View style={styles.container}>
 
@@ -134,10 +133,12 @@ class LoginScreen extends React.Component {
           onPress={() => {
             this.props.navigation.navigate('Register');
           }}>
-          <Text>Do not have an account? Sign Up</Text>
+          <Text>Вы еще не регистрировались? Создать профиль</Text>
         </TouchableOpacity>
         <Loader
-          loading={this.state.isLoading} />
+          loading={this.state.isLoading}
+          text="login"
+        />
       </View>
     );
   }
