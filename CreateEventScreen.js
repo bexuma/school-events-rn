@@ -211,7 +211,8 @@ class CreateEventScreen extends React.Component {
       addPriceFormIsOpened: false,
     });
   };
-  _createEvent = async imageUri => {
+
+  uploadImageToS3 = async (imageUri, timestamp) => {
     const AWS = require('aws-sdk');
     const s3 = new AWS.S3({
       accessKeyId: 'AKIAJMHDUCEW2SQHAEJA',
@@ -219,13 +220,44 @@ class CreateEventScreen extends React.Component {
       region: 'ap-south-1',
     });
 
-    const timestamp = '' + Date.now();
-
     const params = {
       Bucket: 'senbi',
       Key: `images/${this.state.username}/${timestamp}.jpg`,
       ContentType: 'image/jpeg',
     };
+
+    await s3.getSignedUrl('putObject', params, function(err, url) {
+      const request = new XMLHttpRequest();
+      //request.open('PUT', url);
+      request.onreadystatechange = e => {
+        if (request.readyState !== 4) {
+          return;
+        }
+
+        if (request.status === 200) {
+          // console.log('success', request.responseText);
+          console.log('Image successfully uploaded to S3');
+        } else {
+          console.warn('Error while sending the image to S3');
+        }
+
+        if (e) {
+          console.log(e);
+        }
+      };
+
+      request.open('PUT', url);
+      request.setRequestHeader('Content-Type', 'image/jpeg');
+      request.send({
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: `${timestamp}.jpg`,
+      });
+    });
+  }
+
+  _createEvent = async imageUri => {
+    const timestamp = '' + Date.now();
 
     try {
       const {
@@ -254,38 +286,10 @@ class CreateEventScreen extends React.Component {
         },
       });
 
+      this.uploadImageToS3(imageUri, timestamp)
+
       console.log('CREATED');
-
-      s3.getSignedUrl('putObject', params, function(err, url) {
-        // console.log('Your generated pre-signed URL is', url);
-
-        const request = new XMLHttpRequest();
-        //request.open('PUT', url);
-        request.onreadystatechange = e => {
-          if (request.readyState !== 4) {
-            return;
-          }
-
-          if (request.status === 200) {
-            // console.log('success', request.responseText);
-            console.log('Image successfully uploaded to S3');
-          } else {
-            console.warn('Error while sending the image to S3');
-          }
-
-          if (e) {
-            console.log(e);
-          }
-        };
-
-        request.open('PUT', url);
-        request.setRequestHeader('Content-Type', 'image/jpeg');
-        request.send({
-          uri: imageUri,
-          type: 'image/jpeg',
-          name: `${timestamp}.jpg`,
-        });
-      });
+      
     } catch (err) {
       console.log('err', err);
     }  
