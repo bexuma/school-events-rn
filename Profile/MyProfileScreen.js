@@ -18,6 +18,7 @@ export default class MyProfileScreen extends Component {
     }
   });
 
+
   state = {
     user: '',
     isLoading: true,
