@@ -108,11 +108,11 @@ class EventScreen extends Component {
               {this.formatNumberOfParticipants(numberOfParticipants)}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+       {/*   <TouchableOpacity>
             <Text>
               <Text style={{ fontWeight: 'bold' }}>21</Text> друг
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
         </View>
       </View>
     );
@@ -260,7 +260,7 @@ class EventScreen extends Component {
                       onPress={() => {
                         this.props.navigation.navigate('Profile', {
                           userId: item.user.id,
-                          username: item.hostedBy.username
+                          username: item.user.username
                         });
                       }}>
                       <Text style={{ fontWeight: 'bold' }}>

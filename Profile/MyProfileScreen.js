@@ -80,6 +80,8 @@ export default class MyProfileScreen extends Component {
     // if (this.state.isLoading) {
     //   return <View></View>
     // }
+    console.log(this.state.user)
+
 
     const User_events = (
       <TouchableOpacity>
