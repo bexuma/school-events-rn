@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, RefreshControl, Image, AsyncStorage, StyleSheet, Text, FlatList, TouchableOpacity } from 'react-native'
-import { graphql } from 'react-apollo'
-import { gql } from 'apollo-boost'
 import {
-  Ionicons,
-  Octicons,
-  MaterialCommunityIcons,
-  Entypo,
-  FontAwesome,
-  Feather,
-  MaterialIcons,
-} from '@expo/vector-icons';
+  View,
+  ActivityIndicator,
+  RefreshControl,
+  Dimensions,
+  Image,
+  AsyncStorage,
+  StyleSheet,
+  Text,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
+import { graphql } from 'react-apollo';
+import { gql } from 'apollo-boost';
+import { SimpleLineIcons } from '@expo/vector-icons';
 import Moment from 'moment';
 
 const allEventsQuery = gql`
@@ -43,7 +46,7 @@ const allEventsQuery = gql`
       }
     }
   }
-`
+`;
 
 class FeedScreen extends Component {
   static navigationOptions = {
@@ -54,125 +57,119 @@ class FeedScreen extends Component {
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'normal',
-    }
+    },
   };
 
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       events: [],
       refreshing: false,
-      isLoading: true
-    }
+      isLoading: true,
+    };
   }
 
   componentDidMount() {
-    AsyncStorage.getItem('user').then((user) => {
+    AsyncStorage.getItem('user').then(user => {
       this.setState({
         isLoading: false,
-        user: JSON.parse(user)
+        user: JSON.parse(user),
       });
     });
   }
 
   async componentWillReceiveProps(nextProps) {
     if (!nextProps.allEventsQuery.loading && !nextProps.allEventsQuery.error) {
-
       const { allEvents } = nextProps.allEventsQuery;
       const promiseImageUrls = allEvents.map(event => this.loadImage(event));
-      const promiseAvatarUrls = allEvents.map(event => this.loadAvatar(event));      
+      const promiseAvatarUrls = allEvents.map(event => this.loadAvatar(event));
 
-      const imageUrls = await Promise.all(promiseImageUrls)
-      const avatarUrls = await Promise.all(promiseAvatarUrls)
+      const imageUrls = await Promise.all(promiseImageUrls);
+      const avatarUrls = await Promise.all(promiseAvatarUrls);
 
-      const newEvents = allEvents.map((event, index) => ({ ...event, imageUrl: imageUrls[index], avatarUrl: avatarUrls[index]}))
-       
+      const newEvents = allEvents.map((event, index) => ({
+        ...event,
+        imageUrl: imageUrls[index],
+        avatarUrl: avatarUrls[index],
+      }));
+
       this.setState({
-        events: newEvents
-      })
+        events: newEvents,
+      });
     }
   }
 
-  loadAvatar = (item) => {
-    const avatar = item.hostedBy.avatar
-    const username = item.hostedBy.username
+  loadAvatar = item => {
+    const avatar = item.hostedBy.avatar;
+    const username = item.hostedBy.username;
 
     const AWS = require('aws-sdk');
-    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+    const s3 = new AWS.S3({
+      accessKeyId: 'AKIAJMHDUCEW2SQHAEJA',
+      secretAccessKey: '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',
+      region: 'ap-south-1',
+    });
 
-    const params = {Bucket: 'senbi', Key: `images/${username}/photos/${avatar}.jpg`};
-    
-    return new Promise ((resolve, reject) => {
+    const params = {
+      Bucket: 'senbi',
+      Key: `images/${username}/photos/${avatar}.jpg`,
+    };
+
+    return new Promise((resolve, reject) => {
       s3.getSignedUrl('getObject', params, (err, url) => {
         err ? reject(err) : resolve(url);
-      })
-    }) 
+      });
+    });
+  };
 
-  }
-
-  loadImage = (item) => {
-    const image_name = item.image_name
-    const username = item.hostedBy.username
+  loadImage = item => {
+    const image_name = item.image_name;
+    const username = item.hostedBy.username;
 
     const AWS = require('aws-sdk');
-    const s3 = new AWS.S3({accessKeyId:'AKIAJMHDUCEW2SQHAEJA', secretAccessKey:'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', region:'ap-south-1'});
+    const s3 = new AWS.S3({
+      accessKeyId: 'AKIAJMHDUCEW2SQHAEJA',
+      secretAccessKey: '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',
+      region: 'ap-south-1',
+    });
 
-    const params = {Bucket: 'senbi', Key: `images/${username}/${image_name}.jpg`};
-    
-    return new Promise ((resolve, reject) => {
+    const params = {
+      Bucket: 'senbi',
+      Key: `images/${username}/${image_name}.jpg`,
+    };
+
+    return new Promise((resolve, reject) => {
       s3.getSignedUrl('getObject', params, (err, url) => {
         err ? reject(err) : resolve(url);
-      })
-    }) 
+      });
+    });
+  };
 
-  }
-
-  renderPrices = (prices) =>  {
-    let text
+  renderPrices = prices => {
+    let text;
     if (prices.length === 1) {
-      text = `\u20B8${prices[0].amount}`
+      text = `\u20B8${prices[0].amount}`;
     } else if (prices.length > 1) {
       const amounts = prices.map(price => price.amount);
-      amounts.sort((a, b) => a - b)
-      text = `\u20B8${amounts[0]}-\u20B8${amounts[amounts.length - 1]}`
+      amounts.sort((a, b) => a - b);
+      text = `\u20B8${amounts[0]}-\u20B8${amounts[amounts.length - 1]}`;
     } else {
-      text = "Свободный вход"
+      text = 'Свободный вход';
     }
 
-    return <Text>{text}</Text>
-  }
+    return <Text>{text}</Text>;
+  };
 
   renderEvent = ({ item }) => {
     const { navigation } = this.props;
-
-    const Top = (
-      <View style={styles.top}>
-        <View style={styles.host}>
-          <View style={styles.justifyCenter}>
-            <Image
-              style={{ height: 32, width: 32 }}
-              borderRadius={16}
-              source={{
-                uri: item.avatarUrl,
-              }}
-            />
-          </View>
-          <TouchableOpacity
-            onPress={()=>alert("HEHEH")}
-          >
-            <View style={styles.hostName}>
-              <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.hostedBy.username}</Text>
-            </View>
+    const screenWidth = Dimensions.get('window').width;
+    
+    const Host = (
+          <TouchableOpacity onPress={() => alert('HEHEH')}>
+              <Text style={{ fontWeight: 'bold' }}>
+                {item.hostedBy.username}
+              </Text>
           </TouchableOpacity>
-        </View>
-        <View style={styles.actions}>
-          <TouchableOpacity>
-            <View>
-              <Octicons name="kebab-vertical" size={24} color="#26A4FF" />
-            </View>
-          </TouchableOpacity>
-        </View>
-      </View>
     );
 
     const Title = <Text style={{ fontSize: 16 }}>{item.title}</Text>;
@@ -183,22 +180,14 @@ class FeedScreen extends Component {
       </Text>
     );
 
-    const Tags = (
-      <View style={styles.tags}>
-        {/*<TouchableOpacity>
-          <Text style={{ color: '#26A4FF' }}>
-            #Марафон #Благотворительность #Спорт #Бег
-          </Text>
-        </TouchableOpacity>*/}
-      </View>
-    );
-
-
     const WhoIsIn = (
       <View style={styles.whoIsIn}>
         <TouchableOpacity>
           <Text>
-            <Text style={{ fontWeight: 'bold' }}>{item.participantIds.length}</Text> участников
+            <Text style={{ fontWeight: 'bold' }}>
+              {item.participantIds.length}
+            </Text>
+            участников
           </Text>
         </TouchableOpacity>
         <TouchableOpacity>
@@ -212,136 +201,105 @@ class FeedScreen extends Component {
     return (
       <TouchableOpacity
         activeOpacity={1}
+        style={styles.item}
         onPress={() => {
           navigation.navigate('Event', {
             event: item,
-            user: this.state.user
-          })
+            user: this.state.user,
+          });
         }}>
-        <View style={styles.item}>
-          {Top}
-          <View style={styles.body}>
-            <View style={styles.text}>
-              <View style={{ flex: 1 }}>{Title}</View>
-              <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-                {Datetime}
-                {this.renderPrices(item.prices)}
-              </View>
-            </View>
-            <View style={styles.image}>
-              <Image
-                style={{ height: 107.5, width: 107.5 }}
-                source={{
-                  uri: item.imageUrl,
-                }}
-              />
-            </View>
+        <Image
+          style={{
+            height: Math.round((screenWidth * 9) / 16),
+            width: screenWidth,
+          }}
+          source={{
+            uri: item.imageUrl,
+          }}
+        />
+        <View style={styles.info}>
+          <View style={styles.profilePic}>
+            <Image
+              style={{ height: screenWidth / 7.5, width: screenWidth / 7.5 }}
+              borderRadius={screenWidth / 15}
+              source={{
+                uri: item.avatarUrl,
+              }}
+            />
           </View>
-          <View style={styles.bottom}>
-            {Tags}
-            {WhoIsIn}
+          <View style={styles.text}>
+            {Title}
+            {Host}
+            {Datetime}
+            {this.renderPrices(item.prices)}
           </View>
+          <TouchableOpacity style={styles.kebab}>
+            <SimpleLineIcons name="options-vertical" size={20} color="#26A4FF" />
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
-    )
-  }
+    );
+  };
 
   _onRefresh = () => {
-    this.setState({refreshing: true});
+    this.setState({ refreshing: true });
     this.props.allEventsQuery.refetch().then(() => {
-      this.setState({refreshing: false});
+      this.setState({ refreshing: false });
     });
-  }
+  };
 
   render() {
     if (this.state.isLoading) {
-      return <View></View>
+      return <View />;
     }
 
     if (this.props.allEventsQuery.loading) {
       return (
-        <View style={{flex: 1, padding: 20}}>
-          <ActivityIndicator/>
+        <View style={{ flex: 1, padding: 20 }}>
+          <ActivityIndicator />
         </View>
-      )
+      );
     }
 
     return (
-      <View style={styles.container}>
-        <FlatList
-          data={this.state.events}
-          renderItem={this.renderEvent}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._onRefresh}
-            />
-          }
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
-    )
+      <FlatList
+        data={this.state.events}
+        renderItem={this.renderEvent}
+        refreshControl={
+          <RefreshControl
+            refreshing={this.state.refreshing}
+            onRefresh={this._onRefresh}
+          />
+        }
+        keyExtractor={(item, index) => index.toString()}
+      />
+    );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   item: {
     backgroundColor: 'white',
     flex: 1,
-    height: 211.5,
     borderBottomColor: '#D5D5D5',
     borderBottomWidth: 1,
   },
-  top: {
-    paddingLeft: 8,
-    flex: 4,
-    justifyContent: 'center',
-    borderBottomColor: '#D5D5D5',
-    borderBottomWidth: 1,
+  info: {
+    padding: 16,
+    flex: 1,
     flexDirection: 'row',
+    paddingBottom: 24,
   },
-  host: {
-    flex: 11,
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  hostName: {
-    padding: 8,
-    justifyContent: 'center',
-  },
-  justifyCenter: { justifyContent: 'center' },
-  actions: {
-    flex: 5,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  body: {
-    paddingTop: 8,
-    paddingLeft: 8,
-    paddingRight: 8,
-    flex: 10,
-    flexDirection: 'row',
+  profilePic: {
+    flex: 3,
   },
   text: {
-    flex: 11,
-    justifyContent: 'space-between',
+    flex: 17,
+    paddingLeft: 16,
   },
-  image: {
-    flex: 5,
-  },
-  bottom: {
-    paddingLeft: 8,
-    paddingRight: 8,
-    flex: 4,
-    flexDirection: 'row',
-  },
-  tags: {
-    flex: 11,
-    justifyContent: 'center',
-    paddingRight: 8,
+  kebab: {
+    flex: 1,
+    alignItems: 'flex-end',
   },
   whoIsIn: {
     flex: 5,
@@ -349,5 +307,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
-export default graphql(allEventsQuery, {name: 'allEventsQuery'})(FeedScreen)
+export default graphql(allEventsQuery, { name: 'allEventsQuery' })(FeedScreen);
