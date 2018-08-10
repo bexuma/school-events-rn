@@ -168,7 +168,10 @@ class FeedScreen extends Component {
     const screenWidth = Dimensions.get('window').width;
     
     const Host = (
-          <TouchableOpacity onPress={() => {navigation.navigate('Profile')}}>
+          <TouchableOpacity onPress={() => {navigation.navigate('Profile', {
+            userId: item.hostedBy.id,
+            username: item.hostedBy.username
+          })}}>
               <Text style={{ fontWeight: 'bold' }}>
                 {item.hostedBy.username}
               </Text>
@@ -221,7 +224,10 @@ class FeedScreen extends Component {
           }}
         />
         <View style={styles.info}>
-          <TouchableOpacity style={styles.profilePic} onPress={() => {navigation.navigate('Profile')}}>
+          <TouchableOpacity style={styles.profilePic} onPress={() => {navigation.navigate('Profile', {
+            userId: item.hostedBy.id,
+            username: item.hostedBy.username
+          })}}>
             <Image
               style={{ height: screenWidth / 7.5, width: screenWidth / 7.5 }}
               borderRadius={screenWidth / 15}

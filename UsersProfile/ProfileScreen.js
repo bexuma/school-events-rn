@@ -8,11 +8,23 @@ import {
 import { graphql } from 'react-apollo';
 import { gql } from 'apollo-boost';
 
+const findProfileQuery = gql`
+  query ($userId: ID!) {
+    findUser(userId: $userId) {
+      id
+      name
+      username
+      participatingEvents {
+        title
+      }
+    }
+  }
+`
 
-export default class ProfileScreen extends Component {
+class ProfileScreen extends Component {
   
-  static navigationOptions = {
-    title: 'lyailyam',
+  static navigationOptions = ({ navigation }) => ({
+    title: navigation.state.params.username,
     headerRight: <SimpleLineIcons style={{paddingRight: 12,}} name="options-vertical" size={20} color="#fff" />,
     headerStyle: {
       backgroundColor: '#26A4FF',
@@ -21,7 +33,7 @@ export default class ProfileScreen extends Component {
     headerTitleStyle: {
       fontWeight: 'normal',
     }
-  };
+  })
 
 
   state = {
@@ -74,10 +86,11 @@ export default class ProfileScreen extends Component {
   };
 
   render() {
+    if (this.props.data.loading) {
+      return <View></View>
+    }
 
-    // if (this.state.isLoading) {
-    //   return <View></View>
-    // }
+    const user = this.props.data.findUser
 
     const User_events = (
       <TouchableOpacity>
@@ -114,7 +127,7 @@ export default class ProfileScreen extends Component {
 
     const Name = (
       <View style={styles.common}>
-        <Text style={ styles.name }>Ляйля Мусаханова</Text>
+        <Text style={ styles.name }>{user.name}</Text>
       </View>
     );
 
@@ -202,3 +215,6 @@ const styles = StyleSheet.create({
   },
 });
 
+export default graphql(findProfileQuery, {
+  options: (props) => ({ variables: { userId: props.navigation.getParam('userId', 'eventId was not passed to ProfileScreen') } })
+})( ProfileScreen );

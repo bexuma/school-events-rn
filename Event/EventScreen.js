@@ -48,7 +48,7 @@ const createReviewMutation = gql`
 
 class EventScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
-    title: `${navigation.state.params.event.title}`,
+    title: navigation.state.params.event.title,
     headerRight: (
       <SimpleLineIcons
         style={{ paddingRight: 12 }}
@@ -258,7 +258,10 @@ class EventScreen extends Component {
                   <View style={{ flexDirection: 'row' }}>
                     <TouchableOpacity
                       onPress={() => {
-                        this.props.navigation.navigate('Profile');
+                        this.props.navigation.navigate('Profile', {
+                          userId: item.user.id,
+                          username: item.hostedBy.username
+                        });
                       }}>
                       <Text style={{ fontWeight: 'bold' }}>
                         {item.user.username}
