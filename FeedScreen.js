@@ -41,7 +41,7 @@ const allEventsQuery = gql`
       reviews {
         message
         user {
-          name
+          username
         }
       }
     }
@@ -237,6 +237,12 @@ class FeedScreen extends Component {
             <SimpleLineIcons name="options-vertical" size={20} color="#26A4FF" />
           </TouchableOpacity>
         </View>
+        {/* <View style={{ padding: 16, paddingTop: 0, paddingBottom: 24}}>
+          <Text>
+            идут <Text style={{ fontWeight: 'bold' }}>assankhanov, zhakulin99</Text> и
+            <Text style={{ fontWeight: 'bold' }}> еще 28</Text>
+          </Text>
+        </View> */}
       </TouchableOpacity>
     );
   };
@@ -288,6 +294,7 @@ const styles = StyleSheet.create({
     padding: 16,
     flex: 1,
     flexDirection: 'row',
+    paddingTop: 8,
     paddingBottom: 24,
   },
   profilePic: {

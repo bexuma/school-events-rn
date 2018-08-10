@@ -248,7 +248,7 @@ class EventScreen extends Component {
               data={event.reviews}
               renderItem={({ item }) => (
                 <Text>
-                  {item.message} by {item.user.name}
+                  <Text style={{fontWeight: 'bold'}}>{item.user.username} </Text>{item.message}
                 </Text>
               )}
               keyExtractor={(item, index) => index.toString()}
