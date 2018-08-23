@@ -2,14 +2,15 @@
   "expo": {
     "name": "Apta",
     "icon": "./logo.png",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "slug": "apta-app",
     "sdkVersion": "27.0.0",
     "ios": {
       "bundleIdentifier": "app.apta.senbi"
     },
     "android": {
-      "package": "app.apta.senbi"
+      "package": "app.apta.senbi",
+      "versionCode": 2
     }
   }
 }
