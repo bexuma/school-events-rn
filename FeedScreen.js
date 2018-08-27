@@ -46,6 +46,10 @@ const allEventsQuery = gql`
           username
         }
       }
+      tags {
+        id
+        name
+      }
     }
   }
 `;
@@ -252,6 +256,14 @@ class FeedScreen extends Component {
             <Text style={{ fontWeight: 'bold' }}> еще 28</Text>
           </Text>
         </View> */}
+
+        <FlatList
+          data={item.tags}
+          renderItem={({item}) => <TouchableOpacity onPress={() => {navigation.navigate('Tag', {
+            tag: item
+          })}}><Text>{item.name}</Text></TouchableOpacity>}
+          keyExtractor={(item, index) => index.toString()}
+        />
       </TouchableOpacity>
     );
   };

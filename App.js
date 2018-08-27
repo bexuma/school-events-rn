@@ -16,6 +16,8 @@ import EventScreen from './Event/EventScreen';
 import EditProfileScreen from './Profile/EditProfileScreen'
 import EditAccountScreen from './Profile/EditAccountScreen'
 import ProfileScreen from './UsersProfile/ProfileScreen'
+import TagScreen from './TagScreen'
+
 
 const httpLink = new HttpLink({ uri: 'https://senbi.herokuapp.com/graphql' })
 const authLink = setContext(async (_, { headers }) => {
@@ -52,6 +54,7 @@ const FeedNavigator = createStackNavigator({
   Feed: FeedScreen,
   Event: EventScreen,
   Profile: ProfileScreen,
+  Tag: TagScreen
 });
 
 const CreateEventNavigator = createStackNavigator({
