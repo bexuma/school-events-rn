@@ -40,8 +40,11 @@ const createReviewMutation = gql`
       message: $message,
       eventId: $eventId
     ) {
-      id
       message
+      user {
+        id
+        username
+      }
     }
   }
 `;
@@ -70,15 +73,20 @@ class EventScreen extends Component {
     imageUrl: '',
     isLoading: true,
     message: '',
+    reviews: []
   };
 
   componentDidMount() {
+    const event = this.props.navigation.getParam(
+      'event',
+      'event is not found in props'
+    )
+
     this.setState({
-      numberOfParticipants: this.props.navigation.getParam(
-        'event',
-        'event is not found in props'
-      ).participantIds.length,
+      numberOfParticipants: event.participantIds.length,
+      reviews: event.reviews
     });
+
   }
 
   updateNumberOfParticipants = numberOfParticipants => {
@@ -119,6 +127,7 @@ class EventScreen extends Component {
   };
 
   handleAddReviewForm = async eventId => {
+
     try {
       const { message } = this.state;
 
@@ -129,18 +138,19 @@ class EventScreen extends Component {
         },
       });
 
+      console.log("createReviewMutation", result.data.createReview)
+
       this.setState({
         message: '',
+        reviews: [result.data.createReview, ...this.state.reviews]
       });
 
-      console.log(result);
     } catch (err) {
       console.log('err', err);
     }
   };
 
   render() {
-
     const event = this.props.navigation.getParam(
       'event',
       'event is not found in props'
@@ -247,13 +257,13 @@ class EventScreen extends Component {
           <View style={styles.feedback}>
             <Text style={styles.header}>Отзывы</Text>
 
-            {!Array.isArray(event.reviews) || !event.reviews.length ? (
+            {!Array.isArray(this.state.reviews) || !this.state.reviews.length ? (
               <Text style={{ color: 'grey' }}>
                 Отзывы отсутствуют. Напишите о мероприятии.
               </Text>
             ) : (
               <FlatList
-                data={event.reviews}
+                data={this.state.reviews}
                 renderItem={({ item }) => (
                   <View style={{ flexDirection: 'row' }}>
                     <TouchableOpacity
