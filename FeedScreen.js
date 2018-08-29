@@ -3,18 +3,13 @@ import {
   View,
   ActivityIndicator,
   RefreshControl,
-  Dimensions,
-  Image,
-  AsyncStorage,
-  StyleSheet,
-  Text,
   FlatList,
-  TouchableOpacity,
+  AsyncStorage
 } from 'react-native';
 import { graphql } from 'react-apollo';
 import { gql } from 'apollo-boost';
-import { SimpleLineIcons } from '@expo/vector-icons';
-import Moment from 'moment';
+import EventItem from './Event/components/EventItem'
+import SignedUrlHelper from './utils/signedUrlHelper';
 
 const allEventsQuery = gql`
   query {
@@ -70,15 +65,13 @@ class FeedScreen extends Component {
     super(props);
     this.state = {
       events: [],
-      refreshing: false,
-      isLoading: true,
+      refreshing: false
     };
   }
 
   componentDidMount() {
     AsyncStorage.getItem('user').then(user => {
       this.setState({
-        isLoading: false,
         user: JSON.parse(user),
       });
     });
@@ -87,8 +80,8 @@ class FeedScreen extends Component {
   async componentWillReceiveProps(nextProps) {
     if (!nextProps.allEventsQuery.loading && !nextProps.allEventsQuery.error) {
       const { allEvents } = nextProps.allEventsQuery;
-      const promiseImageUrls = allEvents.map(event => this.loadImage(event));
-      const promiseAvatarUrls = allEvents.map(event => this.loadAvatar(event));
+      const promiseImageUrls = allEvents.map(event => SignedUrlHelper.getPhotoSignedURL(event));
+      const promiseAvatarUrls = allEvents.map(event => SignedUrlHelper.getAvatarSignedURL(event));
 
       const imageUrls = await Promise.all(promiseImageUrls);
       const avatarUrls = await Promise.all(promiseAvatarUrls);
@@ -105,169 +98,6 @@ class FeedScreen extends Component {
     }
   }
 
-
-  loadAvatar = item => {
-    const avatar = item.hostedBy.avatar;
-    const username = item.hostedBy.username;
-
-    const AWS = require('aws-sdk');
-    const s3 = new AWS.S3({
-      accessKeyId: 'AKIAJMHDUCEW2SQHAEJA',
-      secretAccessKey: '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',
-      region: 'ap-south-1',
-    });
-
-    const params = {
-      Bucket: 'senbi',
-      Key: `images/${username}/photos/${avatar}.jpg`,
-    };
-
-    return new Promise((resolve, reject) => {
-      s3.getSignedUrl('getObject', params, (err, url) => {
-        err ? reject(err) : resolve(url);
-      });
-    });
-  };
-
-  loadImage = item => {
-    const image_name = item.image_name;
-    const username = item.hostedBy.username;
-
-    const AWS = require('aws-sdk');
-    const s3 = new AWS.S3({
-      accessKeyId: 'AKIAJMHDUCEW2SQHAEJA',
-      secretAccessKey: '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',
-      region: 'ap-south-1',
-    });
-
-    const params = {
-      Bucket: 'senbi',
-      Key: `images/${username}/${image_name}.jpg`,
-    };
-
-    return new Promise((resolve, reject) => {
-      s3.getSignedUrl('getObject', params, (err, url) => {
-        err ? reject(err) : resolve(url);
-      });
-    });
-  };
-
-  renderPrices = prices => {
-    let text;
-    if (prices.length === 1) {
-      text = `\u20B8${prices[0].amount}`;
-    } else if (prices.length > 1) {
-      const amounts = prices.map(price => price.amount);
-      amounts.sort((a, b) => a - b);
-      text = `\u20B8${amounts[0]} - \u20B8${amounts[amounts.length - 1]}`;
-    } else {
-      text = 'Свободный вход';
-    }
-
-    return <Text>{text}</Text>;
-  };
-
-  renderEvent = ({ item }) => {
-    const { navigation } = this.props;
-    const screenWidth = Dimensions.get('window').width;
-    
-    const Host = (
-          <TouchableOpacity onPress={() => {navigation.navigate('Profile', {
-            userId: item.hostedBy.id,
-            username: item.hostedBy.username
-          })}}>
-              <Text style={{ fontWeight: 'bold' }}>
-                {item.hostedBy.username}
-              </Text>
-          </TouchableOpacity>
-    );
-
-    const Title = <Text style={{ fontSize: 16 }}>{item.title}</Text>;
-
-    const Datetime = (
-      <Text style={{ color: 'grey', fontSize: 14 }}>
-        {Moment(item.starts_at).format('Do MMMM, HH:mm')}
-      </Text>
-    );
-
-    const WhoIsIn = (
-      <View style={styles.whoIsIn}>
-        <TouchableOpacity>
-          <Text>
-            <Text style={{ fontWeight: 'bold' }}>
-              {item.participantIds.length}
-            </Text>
-            участников
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text>
-            <Text style={{ fontWeight: 'bold' }}>21</Text> друг
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-
-    return (
-      <TouchableOpacity
-        activeOpacity={1}
-        style={styles.item}
-        onPress={() => {
-          navigation.navigate('Event', {
-            event: item,
-            user: this.state.user,
-          });
-        }}>
-        <Image
-          style={{
-            height: Math.round((screenWidth * 9) / 16),
-            width: screenWidth,
-          }}
-          source={{
-            uri: item.imageUrl,
-          }}
-        />
-        <View style={styles.info}>
-          <TouchableOpacity style={styles.profilePic} onPress={() => {navigation.navigate('Profile', {
-            userId: item.hostedBy.id,
-            username: item.hostedBy.username
-          })}}>
-            <Image
-              style={{ height: screenWidth / 7.5, width: screenWidth / 7.5 }}
-              borderRadius={screenWidth / 15}
-              source={{
-                uri: item.avatarUrl,
-              }}
-            />
-          </TouchableOpacity>
-          <View style={styles.text}>
-            {Title}
-            {Host}
-            {Datetime}
-            {this.renderPrices(item.prices)}
-          </View>
-          <TouchableOpacity style={styles.kebab}>
-            <SimpleLineIcons name="options-vertical" size={20} color="#26A4FF" />
-          </TouchableOpacity>
-        </View>
-        {/* <View style={{ padding: 16, paddingTop: 0, paddingBottom: 24}}>
-          <Text>
-            идут <Text style={{ fontWeight: 'bold' }}>assankhanov, zhakulin99</Text> и
-            <Text style={{ fontWeight: 'bold' }}> еще 28</Text>
-          </Text>
-        </View> */}
-
-        <FlatList
-          data={item.tags}
-          renderItem={({item}) => <TouchableOpacity onPress={() => {navigation.navigate('Tag', {
-            tag: item
-          })}}><Text>{item.name}</Text></TouchableOpacity>}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </TouchableOpacity>
-    );
-  };
-
   _onRefresh = () => {
     this.setState({ refreshing: true });
     this.props.allEventsQuery.refetch().then(() => {
@@ -276,10 +106,6 @@ class FeedScreen extends Component {
   };
 
   render() {
-    if (this.state.isLoading) {
-      return <View />;
-    }
-
     if (this.props.allEventsQuery.loading) {
       return (
         <View style={{ flex: 1, padding: 20 }}>
@@ -291,7 +117,7 @@ class FeedScreen extends Component {
     return (
       <FlatList
         data={this.state.events}
-        renderItem={this.renderEvent}
+        renderItem={({item}) => <EventItem event={item} navigation={this.props.navigation} user={this.state.user}/>}
         refreshControl={
           <RefreshControl
             refreshing={this.state.refreshing}
@@ -303,36 +129,5 @@ class FeedScreen extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  item: {
-    backgroundColor: 'white',
-    flex: 1,
-    borderBottomColor: '#D5D5D5',
-    borderBottomWidth: 1,
-  },
-  info: {
-    padding: 16,
-    flex: 1,
-    flexDirection: 'row',
-    paddingTop: 8,
-    paddingBottom: 24,
-  },
-  profilePic: {
-    flex: 3,
-  },
-  text: {
-    flex: 14,
-    paddingLeft: 16,
-  },
-  kebab: {
-    flex: 1.5,
-    alignItems: 'flex-end',
-  },
-  whoIsIn: {
-    flex: 5,
-    justifyContent: 'center',
-  },
-});
 
 export default graphql(allEventsQuery, { name: 'allEventsQuery' })(FeedScreen);
